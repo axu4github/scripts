@@ -55,12 +55,25 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     row["rep_group"] = row["rep_no"]
 
     # 重写 `start_time` 和 `end_time`列
-    # print out_filename.split("_").pop().split(".").push()
-    # start_time = datetime.strptime(
-    #     row["start_time"].strip("''"), "%Y-%m-%d %H:%M:%S")
-    # print start_time
-    # print start_time.replace(year=2018, month=12, day=22)
-    # exit()
+    date_format = "%Y-%m-%d %H:%M:%S"
+    # === 处理说明
+    # out_filename -> "kf_kf01_20170322.index"
+    # out_filename.split("_").pop() -> "20170322.index"
+    # out_filename.split("_").pop().split(".")[0] -> "20170322"
+    dt = datetime.strptime(o_file.split("_").pop().split(".")[0], "%Y%m%d")
+
+    # === 处理说明
+    # row["start_time"] -> "'2017-02-20 12:00:00'"
+    # row["start_time"].strip("''") -> "2017-02-20 12:00:00" # 去掉前后的单引号
+    start_time = datetime.strptime(row["start_time"].strip("''"), date_format).replace(
+                    year=dt.year, month=dt.month, day=dt.day)
+    end_time = datetime.strptime(row["end_time"].strip("''"), date_format).replace(
+                    year=dt.year, month=dt.month, day=dt.day)
+
+    # 加上前后的单引号
+    row["start_time"] = "'{0}'".format(start_time)
+    row["end_time"] = "'{0}'".format(end_time)
+
     return row
 
 
