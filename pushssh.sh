@@ -21,14 +21,13 @@ fi
 
 # Make sure auth file exists and chmod to 600
 
-ssh $1 -p $PORT 0> echo "mkdir ~/.ssh; touch ~/.ssh/authorized_keys; 
-chmod u+rw .ssh/authorized_keys"
+ssh $1 -p $PORT 0> echo "mkdir ~/.ssh; touch ~/.ssh/authorized_keys; chmod u+rw .ssh/authorized_keys"
 
 # Append to the copy on the remote server
 
 cat ~/.ssh/id_rsa.pub | ssh $1 -p $PORT "cat - >> .ssh/authorized_keys"
 
 if [ $? -eq 0 ]; then
- echo "Success"
+  echo "Success"
 fi
 
