@@ -19,24 +19,30 @@ def reset_index(in_filename, out_filename, fieldnames=None, is_write_headers=Fal
     `is_write_headers`: `out_filename`文件是否写头（内容和顺序为`fieldnames`）
     """
 
-    # 打开读文件句柄
-    with open(in_filename, 'rb') as in_f:
-        reader = csv.reader(in_f) if fieldnames is None else csv.DictReader(
-            in_f, fieldnames=fieldnames)
+    try:
+        # 打开读文件句柄
+        with open(in_filename, 'rb') as in_f:
+            reader = csv.reader(in_f) if fieldnames is None else csv.DictReader(
+                in_f, fieldnames=fieldnames)
 
-        # 打开写文件句柄
-        with open(out_filename, 'wb') as out_f:
-            writer = csv.writer(out_f) if fieldnames is None else csv.DictWriter(
-                out_f, fieldnames=fieldnames)
+            # 打开写文件句柄
+            with open(out_filename, 'wb') as out_f:
+                writer = csv.writer(out_f) if fieldnames is None else csv.DictWriter(
+                    out_f, fieldnames=fieldnames)
 
-            # 是否写头
-            if is_write_headers:
-                writer.writeheader()
+                # 是否写头
+                if is_write_headers:
+                    writer.writeheader()
 
-            # 读每行
-            for row in reader:
-                writer.writerow(reset_row(row, in_filename,
-                                          out_filename, *args, **kwds))
+                # 读每行
+                for row in reader:
+                    writer.writerow(reset_row(row, in_filename,
+                                              out_filename, *args, **kwds))
+    except Exception as e:
+        print "Error Message: [{0}]".format(e)
+        return False
+
+    return True
 
 
 def reset_row(row, in_filename, out_filename, *args, **kwds):
@@ -56,6 +62,7 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
 
     # 重写 `start_time` 和 `end_time`列
     date_format = "%Y-%m-%d %H:%M:%S"
+
     # === 处理说明
     # out_filename -> "kf_kf01_20170322.index"
     # out_filename.split("_").pop() -> "20170322.index"
