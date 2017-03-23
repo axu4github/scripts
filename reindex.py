@@ -66,9 +66,9 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     # row["start_time"] -> "'2017-02-20 12:00:00'"
     # row["start_time"].strip("''") -> "2017-02-20 12:00:00" # 去掉前后的单引号
     start_time = datetime.strptime(row["start_time"].strip("''"), date_format).replace(
-                    year=dt.year, month=dt.month, day=dt.day)
+        year=dt.year, month=dt.month, day=dt.day)
     end_time = datetime.strptime(row["end_time"].strip("''"), date_format).replace(
-                    year=dt.year, month=dt.month, day=dt.day)
+        year=dt.year, month=dt.month, day=dt.day)
 
     # 加上前后的单引号
     row["start_time"] = "'{0}'".format(start_time)
