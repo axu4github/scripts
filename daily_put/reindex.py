@@ -1,6 +1,20 @@
 # coding: utf-8
 
+"""
+[功能说明]
+该脚本的功能是可以根据自定义规则，重写`csv`格式文件
+可以通过`fieldnames`参数指定`csv`文件列名
+重写规则在`reset_row(row, in_filename, out_filename)`方法中
+  - row: 读到的当前行的值，若制定了`fieldnames`参数则为`dict`。若没有指定`fieldnames`参数则为`list`顺序和`csv`文件顺序一致。
+  - in_filename: 输入文件名
+  - out_filename: 输出文件名
+
+[使用方法]
+python reindex.py ${in_filename} ${out_filename}
+"""
+
 import csv
+import sys
 from datetime import datetime
 
 # 默认列名称（共38列）
@@ -85,7 +99,5 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
 
 
 if __name__ == '__main__':
-    i_file = 'kf_kf01_20170220_1.index'
-    o_file = 'kf_kf01_20170322.index'
-
+    _, i_file, o_file = sys.argv
     reset_index(i_file, o_file, fieldnames=DEFAULT_FIELDNAMES)
