@@ -67,7 +67,7 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     # out_filename -> "kf_kf01_20170322.index"
     # out_filename.split("_").pop() -> "20170322.index"
     # out_filename.split("_").pop().split(".")[0] -> "20170322"
-    dt = datetime.strptime(o_file.split("_").pop().split(".")[0], "%Y%m%d")
+    dt = datetime.strptime(out_filename.split("_").pop().split(".")[0], "%Y%m%d")
 
     # === 处理说明
     # row["start_time"] -> "'2017-02-20 12:00:00'"
