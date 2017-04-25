@@ -30,6 +30,7 @@ def reset_index(in_filename, out_filename, fieldnames=None, is_write_headers=Fal
            # skipinitialspace = True,  
            # lineterminator = '\r\n',  
            # quoting = csv.QUOTE_MINIMAL
+           quoting = csv.QUOTE_ALL
         )  
 
         # 打开读文件句柄
@@ -40,16 +41,19 @@ def reset_index(in_filename, out_filename, fieldnames=None, is_write_headers=Fal
             # 打开写文件句柄
             with open(out_filename, 'wb') as out_f:
                 writer = csv.writer(out_f) if fieldnames is None else csv.DictWriter(
-                    out_f, fieldnames=fieldnames)
+                    out_f, fieldnames=fieldnames, dialect='mydialect')
 
                 # 是否写头
                 if is_write_headers:
                     writer.writeheader()
 
+                i = 1
                 # 读每行
-                for row in reader:                
+                for row in reader:
+                    print i
                     writer.writerow(reset_row(row, in_filename,
                                               out_filename, *args, **kwds))
+                    i = i + 1
 
     except Exception as e:
         print "Error Message: [{0}]".format(e)
@@ -69,7 +73,7 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     `in_filename`: 原始索引文件名称
     `out_filename`: 输出索引文件名称
     """
-
+    
     # 重写`rep_group`列
     row["rep_group"] = row["rep_no"]
 
@@ -89,11 +93,11 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
         year=dt.year, month=dt.month, day=dt.day)
 
     # 加上前后的单引号
-    row["start_time"] = "'{0}'".format(start_time)
-    row["end_time"] = "'{0}'".format(end_time)
+    row["start_time"] = "{0}".format(start_time)
+    row["end_time"] = "{0}".format(end_time)
 
     # 重写 `filename`列
-    row["filename"] = "'{0}_{1}'".format(os.path.basename(out_filename).split("_")[1].split(".")[0], row["filename"].strip("''"))
+    row["filename"] = "{0}_{1}".format(os.path.basename(out_filename).split("_")[1].split(".")[0], row["filename"].strip("''"))
 
     return row
 
