@@ -22,16 +22,16 @@ def reset_index(in_filename, out_filename, fieldnames=None, is_write_headers=Fal
     """
 
     try:
-        csv.register_dialect(  
-           'mydialect',  
-           # delimiter = ',',  
-           quotechar = '\'',  
-           # doublequote = True,  
-           # skipinitialspace = True,  
-           # lineterminator = '\r\n',  
-           # quoting = csv.QUOTE_MINIMAL
-           quoting = csv.QUOTE_ALL
-        )  
+        csv.register_dialect(
+            'mydialect',
+            # delimiter = ',',
+            quotechar='\'',
+            # doublequote = True,
+            # skipinitialspace = True,
+            # lineterminator = '\r\n',
+            # quoting = csv.QUOTE_MINIMAL
+            quoting=csv.QUOTE_ALL
+        )
 
         # 打开读文件句柄
         with open(in_filename, 'rb') as in_f:
@@ -73,7 +73,7 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     `in_filename`: 原始索引文件名称
     `out_filename`: 输出索引文件名称
     """
-    
+
     # 重写`rep_group`列
     row["rep_group"] = row["rep_no"]
 
@@ -82,7 +82,8 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
 
     # === 处理说明
     # out_filename -> "kf_20170322.index"
-    dt = datetime.strptime(os.path.basename(out_filename).split("_")[1].split(".")[0], "%Y%m%d")
+    dt = datetime.strptime(os.path.basename(out_filename).split("_")[
+                           1].split(".")[0], "%Y%m%d")
 
     # === 处理说明
     # row["start_time"] -> "'2017-02-20 12:00:00'"
@@ -97,7 +98,8 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
     row["end_time"] = "{0}".format(end_time)
 
     # 重写 `filename`列
-    row["filename"] = "{0}_{1}".format(os.path.basename(out_filename).split("_")[1].split(".")[0], row["filename"].strip("''"))
+    row["filename"] = "{0}_{1}".format(os.path.basename(out_filename).split("_")[
+                                       1].split(".")[0], row["filename"].strip("''"))
 
     return row
 
@@ -105,4 +107,3 @@ def reset_row(row, in_filename, out_filename, *args, **kwds):
 if __name__ == '__main__':
     _, i_file, o_file = sys.argv
     reset_index(i_file, o_file, fieldnames=DEFAULT_FIELDNAMES)
-
