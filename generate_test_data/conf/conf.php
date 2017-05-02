@@ -36,7 +36,6 @@ class Config
                 'cellNumber' => 1, // 属性有多少个值
                 'metaValSeparator' => '', // 每个值之间分隔符
                 'cellScope' => array( // 每个值由几个元素组成,按照数组先后设置每一个元素
-                    array('string' => array(
                     array('string' => array('t')),
                     array('int' => '0,9'), // 整形随机取两个数中的一个数字
                     array('int' => '0,9'), // 整形随机取两个数中的一个数字
@@ -63,7 +62,7 @@ class Config
                     array('int' => '0,9'), // 整形随机取两个数中的一个数字
                     array('int' => '0,9'), // 整形随机取两个数中的一个数字
                     array('string' => array('.mp3')), // 字符串数组中，随机取一个值
-                    )),),
+                ),
                 'cellValSeparator' => '', // 每个值中元素分割符
             ),
             // 机构领域
