@@ -63,6 +63,11 @@ def restart(remote_host, remote_user):
 @click.option("--host", help="远程服务器主机名或者IP地址")
 @click.option("--user", help="连接远程服务器使用用户")
 def main(host, user):
+    """
+    创建和远程服务器的基于SSH连接，用于VNC连接使用（解决Mac OSX使用VNC无法连接Linux服务器问题）。
+
+    启动以后 VNC Viewer 可以使用：localhost:5901 连接远程服务器
+    """
     restart(host, user)
 
 
