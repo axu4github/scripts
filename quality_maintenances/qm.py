@@ -6,12 +6,9 @@ import time
 
 """ 质检任务维护脚本 """
 
-REDIS_HOST = "172.31.117.31"
-REDIS_PORT = 6379
-
 
 def main():
-    qi = QualityInspection(redis_host=REDIS_HOST)
+    qi = QualityInspection(redis_host="172.31.117.31")
     for (quality_id, quality_info_str) in qi.get_tasks().items():
         quality_info = json.loads(quality_info_str)
         print "{id}, {type}, {voicetotal}, {starttime}".format(
@@ -23,5 +20,5 @@ def main():
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
