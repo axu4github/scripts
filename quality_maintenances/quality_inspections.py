@@ -14,16 +14,15 @@ class QualityInspection:
         # redis DB 序号
         redis_db_index = kwargs.get("db", 0)
         # 质检任务历史信息队列名称
-        self.tasklist_history = kwargs.get(
-            "tasklist_history", "tasklist_history")
+        self.task_history = kwargs.get("task_history", "tasklist_history")
         # 质检任务信息队列名称
-        self.tasklist = kwargs.get("tasklist", "tasklist")
+        self.task_now = kwargs.get("task_now", "tasklist")
 
         # 初始化 redis 连接
         self.redis = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db_index)
 
-    def get_tasks(self):
+    def get_all_tasks(self, is_now=True):
         """
         获取所有质检任务
 
@@ -39,4 +38,8 @@ class QualityInspection:
             ...,
         }
         """
-        return self.redis.hgetall(self.tasklist_history)
+
+        if is_now:
+            return self.redis.hgetall(self.task_now)
+        else:
+            return self.redis.hgetall(self.task_history)

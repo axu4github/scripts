@@ -9,7 +9,7 @@ import time
 
 def main():
     qi = QualityInspection(redis_host="172.31.117.31")
-    for (quality_id, quality_info_str) in qi.get_tasks().items():
+    for (quality_id, quality_info_str) in qi.get_all_tasks(False).items():
         quality_info = json.loads(quality_info_str)
         print "{id}, {type}, {voicetotal}, {starttime}".format(
             id=quality_id,
