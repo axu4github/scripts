@@ -7,9 +7,18 @@ class QualityInspection:
     """ 质检类 """
 
     def __init__(self, *args, **kwargs):
+        # redis 主机名 或者 IP 地址
         redis_host = kwargs.get("redis_host", "localhost")
+        # redis 端口号
         redis_port = kwargs.get("redis_port", 6379)
+        # redis DB 序号
         redis_db_index = kwargs.get("db", 0)
+        # 质检任务历史信息队列名称
+        self.tasklist_history = kwargs.get(
+            "tasklist_history", "tasklist_history")
+        # 质检任务信息队列名称
+        self.tasklist = kwargs.get("tasklist", "tasklist")
+
         # 初始化 redis 连接
         self.redis = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db_index)
@@ -30,4 +39,4 @@ class QualityInspection:
             ...,
         }
         """
-        return self.redis.hgetall("tasklist_history")
+        return self.redis.hgetall(self.tasklist_history)
