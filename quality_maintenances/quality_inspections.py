@@ -22,11 +22,28 @@ class QualityInspection:
         self.redis = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db_index)
 
+    def get_task_detail(self, task_id, start_time):
+        """
+        获取质检任务详细信息
+
+        返回数据结构样例：
+        {
+            'write_reprot_start': '1504666410745',
+            'get_voice_end': '1504666260109',
+            'write_reprot_end': '1504666409136',
+            'run_quality_start': '1504666260122',
+            'run_quality_end': '1504666410540',
+            'get_voice_start': '1504665540619'
+        }
+        """
+        return self.redis.hgetall("TASK:{start_time}:{task_id}".format(
+            start_time=start_time, task_id=task_id))
+
     def get_all_tasks(self, is_now=True):
         """
         获取所有质检任务
 
-        数据结构样例：
+        返回数据结构样例：
         {
             '353_2017-02-17': '{"createtime": "2017-08-16 13:54:28",
                                 "status": "E",
@@ -38,7 +55,6 @@ class QualityInspection:
             ...,
         }
         """
-
         if is_now:
             return self.redis.hgetall(self.task_now)
         else:
