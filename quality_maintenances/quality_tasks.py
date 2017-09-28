@@ -58,6 +58,7 @@ class QualityTask:
 
     def _format_timestamp(self, _time=None, time_format="%Y-%m-%d %H:%M:%S"):
         """ 格式化 Timestamp 为 time_format 格式 """
+        _time = int(_time)
         if len(str(_time)) > 10:
             _time = _time / 1000
 
