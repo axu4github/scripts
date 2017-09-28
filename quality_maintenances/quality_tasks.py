@@ -37,7 +37,7 @@ class QualityTask:
         for (task_id, task) in tasks.items():
             tmp = json.loads(task)
             tmp["id"] = self._format_id(task_id)
-            tmp["unique"] = "{id}_{start_time}".format(
+            tmp["unique"] = "{start_time}_{id}".format(
                 id=tmp["id"],
                 start_time=self._format_time(tmp["starttime"], "%Y%m%d"))
             tmp["starttime"] = self._format_time(tmp["starttime"])
