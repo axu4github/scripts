@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
 import redis
 import time
 import json
+import glob
 
 
 class QualityTask:
@@ -19,6 +21,8 @@ class QualityTask:
         self.task_history = kwargs.get("task_history", "tasklist_history")
         # 质检任务信息队列名称
         self.task_now = kwargs.get("task_now", "tasklist")
+        # 质检任务日志文件路径
+        self.log_file_pattern = "/mnt/mfs/upload/Logs/quality/*_{unique}.log"
 
         # 初始化 redis 连接
         self.redis = redis.Redis(
@@ -31,6 +35,7 @@ class QualityTask:
         1. 添加一列 唯一标识 以便用来之后获取 质检任务详情使用
         2. 将 开始时间 (starttime) 和 结束时间 (endtime) 转换为 "%Y-%m-%d %H:%M:%S" 格式
         3. 将 质检编号 (id) 转换为 纯数字 (现在若是常规质检 id 字段的格式为 "{id}_{time}")
+        4. 获取 质检任务 对应 日志文件 的更新时间
         """
 
         formated = []
@@ -39,9 +44,10 @@ class QualityTask:
             tmp["id"] = self._format_id(task_id)
             tmp["unique"] = "{start_time}_{id}".format(
                 id=tmp["id"],
-                start_time=self._format_time(tmp["starttime"], "%Y%m%d"))
-            tmp["starttime"] = self._format_time(tmp["starttime"])
-            tmp["endtime"] = self._format_time(tmp["endtime"])
+                start_time=self._format_timestamp(tmp["starttime"], "%Y%m%d"))
+            tmp["starttime"] = self._format_timestamp(tmp["starttime"])
+            tmp["endtime"] = self._format_timestamp(tmp["endtime"])
+            tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
             formated.append(tmp)
 
         return formated
@@ -50,9 +56,22 @@ class QualityTask:
         """ 格式化 质检编号 """
         return task_id.split("_")[0]
 
-    def _format_time(self, _time=None, time_format="%Y-%m-%d %H:%M:%S"):
-        """ 格式化 时间 """
-        return time.strftime(time_format, time.localtime(_time / 1000))
+    def _format_timestamp(self, _time=None, time_format="%Y-%m-%d %H:%M:%S"):
+        """ 格式化 Timestamp 为 time_format 格式 """
+        if len(str(_time)) > 10:
+            _time = _time / 1000
+
+        return time.strftime(time_format, time.localtime(_time))
+
+    def _get_log_modified(self, unique):
+        """ 根据 质检唯一标识 获取 质检任务 对应 日志文件 更新时间 """
+        log_files = glob.glob(self.log_file_pattern.format(unique=unique))
+        if len(log_files) > 0:
+            log_file = log_files[0]
+        else:
+            return "None File"
+
+        return self._format_timestamp(os.stat(log_file).st_mtime)
 
     def get_all(self, is_now=True):
         """

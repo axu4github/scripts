@@ -48,7 +48,7 @@ def main(is_now, redis_host, redis_port, redis_db):
         table.add_row([
             task["unique"], task["id"],
             task["type"], task["voicetotal"],
-            task["starttime"], ""])
+            task["starttime"], task["log_modifiedtime"]])
 
     print table
 
