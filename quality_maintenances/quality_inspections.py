@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import redis
+import time
+import json
 
 
 class QualityInspection:
@@ -39,6 +41,33 @@ class QualityInspection:
         return self.redis.hgetall("TASK:{start_time}:{task_id}".format(
             start_time=start_time, task_id=task_id))
 
+    def _format(self, tasks=None):
+        """
+        格式化获取到的质检任务列表
+
+        1. 添加一列 唯一标识 以便用来之后获取 质检任务详情使用
+        2. 将 开始时间 (starttime) 和 结束时间 (endtime) 转换为 "%Y-%m-%d %H:%M:%S" 格式
+        3. 将 质检编号 (id) 转换为 纯数字 (现在若是常规质检 id 字段的格式为 "{id}_{time}")
+        """
+
+        formated = []
+        for (task_id, task) in tasks.items():
+            tmp = json.loads(task)
+            tmp["task_id"] = self._format_id(task_id)
+            tmp["starttime"] = self._format_time(tmp["starttime"])
+            tmp["endtime"] = self._format_time(tmp["endtime"])
+            formated.append(tmp)
+
+        return formated
+
+    def _format_id(self, task_id=None):
+        """ 格式化 质检编号 """
+        return task_id.split("_")[0]
+
+    def _format_time(self, _time=None, time_format="%Y-%m-%d %H:%M:%S"):
+        """ 格式化 时间 """
+        return time.strftime(time_format, time.localtime(_time / 1000))
+
     def get_all_tasks(self, is_now=True):
         """
         获取所有质检任务
@@ -55,7 +84,10 @@ class QualityInspection:
             ...,
         }
         """
+        tasks = {}
         if is_now:
-            return self.redis.hgetall(self.task_now)
+            tasks = self.redis.hgetall(self.task_now)
         else:
-            return self.redis.hgetall(self.task_history)
+            tasks = self.redis.hgetall(self.task_history)
+
+        return self._format(tasks)
