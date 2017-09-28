@@ -11,9 +11,9 @@ sys.setdefaultencoding('utf-8')
 
 # 头信息
 HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "质检开始时间", "日志更新时间"]
-REDIS_HOST = "172.31.117.31"
-REDIS_PORT = 6379
-REDIS_DB_INDEX = 0
+DEFAULT_REDIS_HOST = "172.31.117.31"
+DEFAULT_REDIS_PORT = 6379
+DEFAULT_REDIS_DB_INDEX = 0
 
 
 def set_if_not_none(judge_value, default_value):
@@ -29,9 +29,14 @@ def set_if_not_none(judge_value, default_value):
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
 def main(is_now, redis_host, redis_port, redis_db):
-    _redis_host = set_if_not_none(redis_host, REDIS_HOST)
-    _redis_port = set_if_not_none(redis_port, REDIS_PORT)
-    _redis_db = set_if_not_none(redis_db, REDIS_DB_INDEX)
+    """
+    质检任务维护脚本
+
+    获取帮助信息请执行 python quality_maintenances.py --help
+    """
+    _redis_host = set_if_not_none(redis_host, DEFAULT_REDIS_HOST)
+    _redis_port = set_if_not_none(redis_port, DEFAULT_REDIS_PORT)
+    _redis_db = set_if_not_none(redis_db, DEFAULT_REDIS_DB_INDEX)
 
     table = PrettyTable()
     table.field_names = HEADERS
