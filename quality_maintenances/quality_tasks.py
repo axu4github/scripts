@@ -41,9 +41,9 @@ class QualityTask:
         return self.redis.hgetall("TASK:{start_time}:{task_id}".format(
             start_time=start_time, task_id=task_id))
 
-    def _format(self, tasks=None):
+    def _flat(self, tasks=None):
         """
-        格式化获取到的质检任务列表
+        将原始格式压平（类似 Spark 的 flatMap）并格式化如下几列内容
 
         1. 添加一列 唯一标识 以便用来之后获取 质检任务详情使用
         2. 将 开始时间 (starttime) 和 结束时间 (endtime) 转换为 "%Y-%m-%d %H:%M:%S" 格式
@@ -93,4 +93,4 @@ class QualityTask:
         else:
             tasks = self.redis.hgetall(self.task_history)
 
-        return self._format(tasks)
+        return self._flat(tasks)
