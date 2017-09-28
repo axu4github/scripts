@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from quality_inspections import QualityInspection
+from quality_tasks import QualityTask
 from prettytable import PrettyTable
 
 """ 质检任务维护脚本 """
@@ -12,8 +12,8 @@ HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "�
 def main():
     row = PrettyTable()
     row.field_names = HEADERS
-    qi = QualityInspection(redis_host="172.31.117.31")
-    for task in qi.get_all_tasks(False):
+    qt = QualityTask(redis_host="172.31.117.31")
+    for task in qt.get_all(False):
         row.add_row([
             task["unique"], task["id"],
             task["type"], task["voicetotal"],

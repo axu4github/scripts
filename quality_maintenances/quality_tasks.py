@@ -5,8 +5,8 @@ import time
 import json
 
 
-class QualityInspection:
-    """ 质检类 """
+class QualityTask:
+    """ 质检任务类 """
 
     def __init__(self, *args, **kwargs):
         # redis 主机名 或者 IP 地址
@@ -24,7 +24,7 @@ class QualityInspection:
         self.redis = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db_index)
 
-    def get_task_detail(self, task_id, start_time):
+    def get_detail(self, task_id, start_time):
         """
         获取质检任务详细信息
 
@@ -71,7 +71,7 @@ class QualityInspection:
         """ 格式化 时间 """
         return time.strftime(time_format, time.localtime(_time / 1000))
 
-    def get_all_tasks(self, is_now=True):
+    def get_all(self, is_now=True):
         """
         获取所有质检任务
 
