@@ -53,7 +53,10 @@ class QualityInspection:
         formated = []
         for (task_id, task) in tasks.items():
             tmp = json.loads(task)
-            tmp["task_id"] = self._format_id(task_id)
+            tmp["id"] = self._format_id(task_id)
+            tmp["unique"] = "{id}_{start_time}".format(
+                id=tmp["id"],
+                start_time=self._format_time(tmp["starttime"], "%Y%m%d"))
             tmp["starttime"] = self._format_time(tmp["starttime"])
             tmp["endtime"] = self._format_time(tmp["endtime"])
             formated.append(tmp)
