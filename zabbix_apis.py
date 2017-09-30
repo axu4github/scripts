@@ -55,6 +55,7 @@ def zabbix_login(user=ZABBIX_USERNAME, password=ZABBIX_PASSWORD):
         "password": password
     })
 
+
 if __name__ == '__main__':
     auth_token = zabbix_login()
 
@@ -72,30 +73,34 @@ if __name__ == '__main__':
                 print "-" * 50
                 print "==> {0} <==".format(item)
                 # 获取当前时间点的监控信息
-                response = zabbix_request(auth=auth_token, method="item.get", params={
-                    "output": ["lastvalue", "lastclock"],
-                    # "output": "extend", # 全部返回值
-                    "hostids": info["hostid"],
-                    "search": {
-                        "key_": item
+                response = zabbix_request(
+                    auth=auth_token, method="item.get", params={
+                        "output": ["lastvalue", "lastclock"],
+                        # "output": "extend", # 全部返回值
+                        "hostids": info["hostid"],
+                        "search": {
+                            "key_": item
+                        }
                     }
-                })
+                )
 
                 # print "[Response] => {0}".format(response)
 
                 print "-" * 50
                 # 获取时间范围的监控信息
-                print "[Response] => {0}".format(zabbix_request(auth=auth_token, method="history.get", params={
-                    "history": response_type,
-                    "time_from": "1496283310",
-                    "time_till": "1496369710",
-                    "hostids": info["hostid"],
-                    "itemids": response[0]["itemid"],
-                    "output": "extend",
-                    "sortfield": "clock",
-                    "sortorder": "DESC",
-                    # "limit": 10 # 只返回其中10条
-                }))
+                print "[Response] => {0}".format(zabbix_request(
+                    auth=auth_token, method="history.get", params={
+                        "history": response_type,
+                        "time_from": "1496283310",
+                        "time_till": "1496369710",
+                        "hostids": info["hostid"],
+                        "itemids": response[0]["itemid"],
+                        "output": "extend",
+                        "sortfield": "clock",
+                        "sortorder": "DESC",
+                        # "limit": 10 # 只返回其中10条
+                    }
+                ))
 
             print "*" * 100
             print ""
