@@ -5,7 +5,6 @@ import redis
 import time
 import json
 import glob
-from collections import OrderedDict
 
 
 class QualityTask:
@@ -98,18 +97,6 @@ class QualityTask:
             tasks = self.redis.hgetall(self.task_history)
 
         return self._flat(tasks)
-
-    def sorted_by_dict_values(self, dic):
-        """
-        按照字典的值排序（升序）
-
-        由于 python 2.6.6 没有 OrderedDict 方法，所以该方法弃用。
-        """
-        r = OrderedDict()
-        for d in sorted(dic.items(), lambda x, y: cmp(x[1], y[1])):
-            r[d[0]] = d[1]
-
-        return r
 
     def get_detail(self, task_id, start_time):
         """
