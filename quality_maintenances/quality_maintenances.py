@@ -54,7 +54,7 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
         # task_id => "20170816_397"
         task_id_arr = task_id.split("_")
         task_detail = qt.get_detail(task_id_arr[1], task_id_arr[0])
-        for (task_step, start_time) in task_detail.items():
+        for (task_step, start_time) in task_detail:
             table.add_row([task_step, qt._format_timestamp(start_time)])
     else:
         table.field_names = TASK_LIST_HEADERS
