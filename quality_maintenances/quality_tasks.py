@@ -42,11 +42,15 @@ class QualityTask:
         for (task_id, task) in tasks.items():
             tmp = json.loads(task)
             tmp["id"] = self._format_id(task_id)
-            tmp["unique"] = "{start_time}_{id}".format(
-                id=tmp["id"],
-                start_time=self._format_timestamp(tmp["starttime"], "%Y%m%d"))
-            tmp["starttime"] = self._format_timestamp(tmp["starttime"])
-            tmp["endtime"] = self._format_timestamp(tmp["endtime"])
+            if "starttime" in tmp:
+                tmp["unique"] = "{start_time}_{id}".format(
+                    id=tmp["id"],
+                    start_time=self._format_timestamp(tmp["starttime"], "%Y%m%d"))
+                tmp["starttime"] = self._format_timestamp(tmp["starttime"])
+
+            if "endtime" in tmp:
+                tmp["endtime"] = self._format_timestamp(tmp["endtime"])
+
             tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
             formated.append(tmp)
 
