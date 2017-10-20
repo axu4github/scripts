@@ -36,6 +36,9 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
     质检任务维护脚本
 
     获取帮助信息请执行 python quality_maintenances.py --help
+
+    例：`python quality_maintenances.py --task_id 20171020_37`
+
     """
     _redis_host = set_if_not_none(redis_host, DEFAULT_REDIS_HOST)
     _redis_port = set_if_not_none(redis_port, DEFAULT_REDIS_PORT)
