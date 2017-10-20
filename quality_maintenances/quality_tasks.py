@@ -5,6 +5,7 @@ import redis
 import time
 import json
 import glob
+from collections import OrderedDict
 
 
 class QualityTask:
@@ -98,6 +99,14 @@ class QualityTask:
 
         return self._flat(tasks)
 
+    def sorted_by_dict_values(self, dic):
+        """ 按照字典的值排序（升序） """
+        r = OrderedDict()
+        for d in sorted(dic.items(), lambda x, y: cmp(x[1], y[1])):
+            r[d[0]] = d[1]
+
+        return r
+
     def get_detail(self, task_id, start_time):
         """
         获取质检任务详细信息
@@ -112,5 +121,7 @@ class QualityTask:
             'get_voice_start': '1504665540619'
         }
         """
-        return self.redis.hgetall("TASK:{start_time}:{task_id}".format(
+        details = self.redis.hgetall("TASK:{start_time}:{task_id}".format(
             start_time=start_time, task_id=task_id))
+
+        return self.sorted_by_dict_values(details)
