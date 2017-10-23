@@ -54,7 +54,7 @@ class QualityTask:
             tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
             formated.append(tmp)
 
-        return formated
+        return sorted(formated)
 
     def _format_id(self, task_id=None):
         """ 格式化 质检编号 """
