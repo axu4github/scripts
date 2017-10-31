@@ -27,7 +27,7 @@ def interval(start, end, date_format):
     if start > end:
         start, end = end, start
 
-    print(end - start)
+    click.echo("Time difference: {}.".format(end - start))
 
 
 if __name__ == "__main__":
