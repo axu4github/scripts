@@ -22,6 +22,11 @@ def str2datetime(date, date_format=DATE_FORMAT):
 @click.option("--date_format", default=DATE_FORMAT,
               help="日期格式，默认为：%Y-%m-%d %H:%M:%S")
 def interval(start, end, date_format):
+    """
+    人性化显示时间差
+
+    START, END => 开始时间 和 结束时间
+    """
     start = str2datetime(start, date_format)
     end = str2datetime(end, date_format)
     if start > end:
