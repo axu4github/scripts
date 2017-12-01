@@ -77,7 +77,7 @@ def extract_tags(context):
 
 @click.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option("--file_path", default=None, help="待分词的文本")
-@click.option("--output", default=None, help="输出路径")
+@click.option("--output", default=None, help="分词结果输出文件路径")
 def main(file_path, output):
     if file_path is not None:
         context = file_get_contents(file_path)
