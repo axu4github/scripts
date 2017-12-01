@@ -40,7 +40,6 @@ def time_analyze(func):
 
 @time_analyze
 def file_get_contents(file_path):
-    """ 从文件中获取查询条件 """
     context = ""
     with open(file_path) as f:
         for l in f.readlines():
