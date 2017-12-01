@@ -3,8 +3,8 @@
 import click
 import time
 import jieba
-
 from functools import wraps
+import os
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -12,10 +12,13 @@ sys.setdefaultencoding("utf-8")
 # click 模块配置
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"], terminal_width=100)
-TOPN = 800
-STOP_WORDS_FILE_PATH = "./stop_words.txt"
+BASE_PATH = os.path.dirname(os.path.abspath("__file__"))
+# 停用词文件路径
+STOP_WORDS_FILE_PATH = "{}{}stop_words.txt".format(BASE_PATH, os.path.sep)
+# 停用词数组
 stop_words = [line.strip().decode("utf-8")
               for line in open(STOP_WORDS_FILE_PATH).readlines()]
+TOPN = 800
 
 
 def time_analyze(func):
@@ -81,8 +84,10 @@ def main(file_path, output):
         words = text_segmentation(context)
         words_str = " ".join(words)
         if output is None:
-            print(len(words))
-            print(words_str)
+            click.echo("关键词数量: {}个".format(len(words)))
+            click.echo(" === 关键词 ===")
+            click.echo(words_str)
+            click.echo(" === ")
         else:
             file_put_contents(output, words_str)
 
