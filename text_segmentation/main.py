@@ -49,6 +49,7 @@ def file_get_contents(file_path):
     return context
 
 
+@time_analyze
 def file_put_contents(file_path, context):
     with open(file_path, "w") as f:
         f.write(context)
