@@ -14,6 +14,8 @@ CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"], terminal_width=100)
 TOPN = 800
 STOP_WORDS_FILE_PATH = "./stop_words.txt"
+stop_words = [line.strip().decode("utf-8")
+              for line in open(STOP_WORDS_FILE_PATH).readlines()]
 
 
 def time_analyze(func):
@@ -49,13 +51,17 @@ def file_put_contents(file_path, context):
         f.write(context)
 
 
+def stop_words_filter(words):
+    return words not in stop_words
+
+
 @time_analyze
 def text_segmentation(context):
     kws = []
     for kw in jieba.cut(context):
         kws.append(kw.encode("utf-8"))
 
-    return kws
+    return filter(stop_words_filter, kws)
 
 
 @time_analyze
