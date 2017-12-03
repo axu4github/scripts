@@ -54,17 +54,13 @@ def file_put_contents(file_path, context):
         f.write(context)
 
 
-def stop_words_filter(words):
-    return words not in stop_words
-
-
 @time_analyze
 def text_segmentation(context):
     kws = []
     for kw in jieba.cut(context):
         kws.append(kw.encode("utf-8"))
 
-    return filter(stop_words_filter, kws)
+    return filter(lambda word: word not in stop_words, kws)
 
 
 @time_analyze
