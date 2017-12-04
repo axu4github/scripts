@@ -12,7 +12,7 @@ sys.setdefaultencoding('utf-8')
 
 # 头信息
 TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "质检开始时间", "日志更新时间"]
-TASK_DETAIL_HEADERS = ["执行步骤", "执行时间", "耗时"]
+TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
 
 DEFAULT_REDIS_HOST = "10.0.3.21"
 DEFAULT_REDIS_PORT = 6379
