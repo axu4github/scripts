@@ -40,6 +40,7 @@ def _init_quality_task(redis_host, redis_port, redis_db):
 
 
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
+@click.help_option("-h", "--help", help="使用说明")
 def cli():
     """
     质检任务运维脚本
@@ -50,6 +51,7 @@ def cli():
 
 
 @cli.command(short_help="显示质检任务列表信息")
+@click.help_option("-h", "--help", help="使用说明")
 @click.option("--is_now", default=True, type=click.BOOL, help="是否显示当下的质检任务")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
@@ -78,6 +80,7 @@ def list(is_now, redis_host, redis_port, redis_db):
 
 
 @cli.command(short_help="显示质检任务详细信息")
+@click.help_option("-h", "--help", help="使用说明")
 @click.option("--task_id", required=True, help="质检任务 ID")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
