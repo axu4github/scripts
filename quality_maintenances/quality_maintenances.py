@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import click
+import datetime
 from quality_tasks import QualityTask
 from prettytable import PrettyTable
 import sys
@@ -11,9 +12,9 @@ sys.setdefaultencoding('utf-8')
 
 # 头信息
 TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "质检开始时间", "日志更新时间"]
-TASK_DETAIL_HEADERS = ["执行步骤", "执行时间"]
+TASK_DETAIL_HEADERS = ["执行步骤", "执行时间", "耗时"]
 
-DEFAULT_REDIS_HOST = "172.31.117.31"
+DEFAULT_REDIS_HOST = "10.0.3.21"
 DEFAULT_REDIS_PORT = 6379
 DEFAULT_REDIS_DB_INDEX = 0
 
@@ -51,11 +52,23 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
 
     if task_id is not None:
         table.field_names = TASK_DETAIL_HEADERS
-        # task_id => "20170816_397"
+        # 样例：task_id => "20170816_397"
         task_id_arr = task_id.split("_")
         task_detail = qt.get_detail(task_id_arr[1], task_id_arr[0])
-        for (task_step, start_time) in task_detail:
-            table.add_row([task_step, qt._format_timestamp(start_time)])
+        for i in range(0, len(task_detail)):
+            (task_step, current_start_time) = task_detail[i]
+            (_, previous_start_time) = task_detail[i - 1]
+            f_current_start_time = float(current_start_time) / 1000
+            f_previous_start_time = float(previous_start_time) / 1000
+            interval = "-"
+            if f_current_start_time - f_previous_start_time > 0:
+                dt_curr = datetime.datetime.fromtimestamp(f_current_start_time)
+                dt_pre = datetime.datetime.fromtimestamp(f_previous_start_time)
+                interval = dt_curr - dt_pre
+
+            table.add_row(
+                [task_step, qt._format_timestamp(current_start_time), interval]
+            )
     else:
         table.field_names = TASK_LIST_HEADERS
         for task in qt.get_all(is_now):
