@@ -60,11 +60,11 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
             (_, previous_start_time) = task_detail[i - 1]
             f_current_start_time = float(current_start_time) / 1000
             f_previous_start_time = float(previous_start_time) / 1000
-            interval = "-"
+            interval = "0:00:00.000000"
             if f_current_start_time - f_previous_start_time > 0:
                 dt_curr = datetime.datetime.fromtimestamp(f_current_start_time)
                 dt_pre = datetime.datetime.fromtimestamp(f_previous_start_time)
-                interval = dt_curr - dt_pre
+                interval = str(dt_curr - dt_pre)
 
             table.add_row(
                 [task_step, qt._format_timestamp(current_start_time), interval]
