@@ -6,7 +6,7 @@ from quality_tasks import QualityTask
 from prettytable import PrettyTable
 import sys
 reload(sys)
-sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding("utf-8")
 
 """ 质检任务维护脚本 """
 
@@ -55,6 +55,7 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
         # 样例：task_id => "20170816_397"
         task_id_arr = task_id.split("_")
         task_detail = qt.get_detail(task_id_arr[1], task_id_arr[0])
+        total = datetime.timedelta()
         for i in range(0, len(task_detail)):
             (task_step, current_start_time) = task_detail[i]
             (_, previous_start_time) = task_detail[i - 1]
@@ -64,11 +65,16 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
             if f_current_start_time - f_previous_start_time > 0:
                 dt_curr = datetime.datetime.fromtimestamp(f_current_start_time)
                 dt_pre = datetime.datetime.fromtimestamp(f_previous_start_time)
-                interval = str(dt_curr - dt_pre)
+                interval = dt_curr - dt_pre
+                total += interval  # 计算总耗时
 
             table.add_row(
-                [task_step, qt._format_timestamp(current_start_time), interval]
+                [task_step, qt._format_timestamp(
+                    current_start_time), str(interval)]
             )
+
+        print(table)
+        print("任务总耗时：[{}].".format(total))
     else:
         table.field_names = TASK_LIST_HEADERS
         for task in qt.get_all(is_now):
@@ -77,7 +83,7 @@ def main(is_now, task_id, redis_host, redis_port, redis_db):
                 task["type"], task["voicetotal"],
                 task["starttime"], task["log_modifiedtime"]])
 
-    print table
+        print(table)
 
 
 if __name__ == "__main__":
