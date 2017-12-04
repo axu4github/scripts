@@ -14,6 +14,7 @@ sys.setdefaultencoding("utf-8")
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"],
     terminal_width=100)
+CLICK_COLOR = "red"
 # 头信息
 TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "质检开始时间", "日志更新时间"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
@@ -72,7 +73,8 @@ def list(is_now, redis_host, redis_port, redis_db):
             task["type"], task["voicetotal"],
             task["starttime"], task["log_modifiedtime"]])
 
-    print(table)
+    click.echo()
+    click.echo(table)
 
 
 @cli.command(short_help="显示质检任务详细信息")
@@ -110,8 +112,8 @@ def detail(task_id, redis_host, redis_port, redis_db):
                 current_start_time), str(interval)]
         )
 
-    print(table)
-    print("任务总耗时：[{}].".format(total))
+    click.echo(table)
+    click.echo("质检任务总耗时 => {}".format(click.style(str(total), fg=CLICK_COLOR)))
 
 
 if __name__ == "__main__":
