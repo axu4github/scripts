@@ -84,13 +84,13 @@ class QualityTask:
 
         返回数据结构样例：
         {
-            '353_2017-02-17': '{"createtime": "2017-08-16 13:54:28",
+            "353_2017-02-17": "{"createtime": "2017-08-16 13:54:28",
                                 "status": "E",
                                 "voicetotal": 0,
                                 "nodename": "node32",
                                 "type": "D",
                                 "starttime": 1503027900329,
-                                "endtime": 1503027900697}',
+                                "endtime": 1503027900697}",
             ...,
         }
         """
@@ -108,13 +108,15 @@ class QualityTask:
 
         返回数据结构样例：
         {
-            'write_reprot_start': '1504666410745',
-            'get_voice_end': '1504666260109',
-            'write_reprot_end': '1504666409136',
-            'run_quality_start': '1504666260122',
-            'run_quality_end': '1504666410540',
-            'get_voice_start': '1504665540619'
+            "get_voice_start": "1504665540619",
+            "get_voice_end": "1504666260109",
+            "run_quality_start": "1504666260122",
+            "run_quality_end": "1504666410540",
+            "write_reprot_start": "1504666410745",
+            "write_reprot_end": "1504666409136"
         }
+
+        # 修改返回结果，增加按照时间排序。
         """
         details = self.redis.hgetall("TASK:{start_time}:{task_id}".format(
             start_time=start_time, task_id=task_id))
