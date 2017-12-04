@@ -68,9 +68,13 @@ class QualityTask:
 
         return time.strftime(time_format, time.localtime(_time))
 
+    def _get_log_path(self, unique):
+        """ 根据质检任务id，获取该任务日志文件路径 """
+        return glob.glob(self.log_file_pattern.format(unique=unique))
+
     def _get_log_modified(self, unique):
         """ 根据 质检唯一标识 获取 质检任务 对应 日志文件 更新时间 """
-        log_files = glob.glob(self.log_file_pattern.format(unique=unique))
+        log_files = self._get_log_path(unique)
         if len(log_files) > 0:
             log_file = log_files[0]
         else:
