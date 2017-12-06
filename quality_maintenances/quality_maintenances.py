@@ -23,6 +23,14 @@ TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型",
                      "质检录音量", "质检开始时间", "日志更新时间", "执行服务器"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
 
+# 质检类型
+QUALITY_TASK_TYPE = {
+    "A": "常规质检（A）",
+    "B": "专项质检（B）",
+    "C": "关联质检（C）",
+    "D": "常规关联质检（D）",
+}
+
 DEFAULT_REDIS_HOST = "10.0.3.21"
 DEFAULT_REDIS_PORT = 6379
 DEFAULT_REDIS_DB_INDEX = 0
@@ -76,7 +84,7 @@ def list(is_now, redis_host, redis_port, redis_db):
     for task in qt.get_all(is_now):
         table.add_row([
             task["unique"], task["id"],
-            task["type"], task["voicetotal"],
+            QUALITY_TASK_TYPE[task["type"].upper()], task["voicetotal"],
             task["starttime"], task["log_modifiedtime"],
             task["nodename"]])
 
