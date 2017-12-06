@@ -17,8 +17,10 @@ CLICK_CONTEXT_SETTINGS = dict(
     terminal_width=100)
 CLICK_COLOR_INFO = "green"
 CLICK_COLOR_ERROR = "red"
+
 # 头信息
-TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量", "质检开始时间", "日志更新时间"]
+TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型",
+                     "质检录音量", "质检开始时间", "日志更新时间", "执行服务器"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
 
 DEFAULT_REDIS_HOST = "10.0.3.21"
@@ -75,7 +77,8 @@ def list(is_now, redis_host, redis_port, redis_db):
         table.add_row([
             task["unique"], task["id"],
             task["type"], task["voicetotal"],
-            task["starttime"], task["log_modifiedtime"]])
+            task["starttime"], task["log_modifiedtime"],
+            task["nodename"]])
 
     click.echo()
     click.echo(table)
