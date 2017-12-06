@@ -43,15 +43,16 @@ class QualityTask:
             tmp = json.loads(task)
             tmp["id"] = self._format_id(task_id)
             if "starttime" in tmp:
-                tmp["unique"] = "{start_time}_{id}".format(
-                    id=tmp["id"],
-                    start_time=self._format_timestamp(tmp["starttime"], "%Y%m%d"))
+                # $(start_time)_$(id)
+                tmp["unique"] = "{}_{}".format(
+                    self._format_timestamp(tmp["starttime"], "%Y%m%d"),
+                    tmp["id"])
                 tmp["starttime"] = self._format_timestamp(tmp["starttime"])
+                tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
 
             if "endtime" in tmp:
                 tmp["endtime"] = self._format_timestamp(tmp["endtime"])
 
-            tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
             formated.append(tmp)
 
         return sorted(formated)
