@@ -74,10 +74,14 @@ def extract_tags(context):
 @click.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option("--file_path", default=None, help="待分词的文本")
 @click.option("--output", default=None, help="分词结果输出文件路径")
-def main(file_path, output):
+@click.option("--deduplication", default=False, type=click.BOOL, help="是否去除重复")
+def main(file_path, output, deduplication):
     if file_path is not None:
         context = file_get_contents(file_path)
         words = text_segmentation(context)
+        if deduplication:
+            words = list(set(words))
+
         words_str = " ".join(words)
         if output is None:
             click.echo("关键词数量: {}个".format(len(words)))
