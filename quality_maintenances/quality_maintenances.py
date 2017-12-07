@@ -105,8 +105,8 @@ def detail(task_id, redis_host, redis_port, redis_db):
 
     实例：`python quality_maintenances.py detail --task_id=20171020_37`
     """
-    table = PrettyTable()
     qt = _init_quality_task(redis_host, redis_port, redis_db)
+    table = PrettyTable()
     table.field_names = TASK_DETAIL_HEADERS
     # 样例：task_id => "20170816_397"
     task_id_arr = task_id.split("_")
@@ -134,6 +134,11 @@ def detail(task_id, redis_host, redis_port, redis_db):
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
 def log(task_id, number, redis_host, redis_port, redis_db):
+    """
+    显示质检任务运行日志
+
+    实例：`python quality_maintenances.py log --task_id=20171020_37`
+    """
     # 样例：task_id => "20170816_397"
     task_unique = task_id.split("_")[1]
     qt = _init_quality_task(redis_host, redis_port, redis_db)
