@@ -85,6 +85,20 @@ class QualityTask:
 
         return self._format_timestamp(os.stat(log_file).st_mtime)
 
+    def _add_interval(self, detail):
+        """ 增加质检任务每步用时（单位：毫秒）"""
+        if len(detail) > 0:
+            for i in range(0, len(detail)):
+                interval = 0
+                current_time = float(detail[i][1])
+                previous_time = float(detail[i - 1][1])
+                if current_time - previous_time > 0:
+                    interval = current_time - previous_time
+
+                detail[i] += (interval, )
+
+        return detail
+
     def get_all(self, is_now=True):
         """
         获取所有质检任务
@@ -114,18 +128,19 @@ class QualityTask:
         获取质检任务详细信息
 
         返回数据结构样例：
-        {
-            "get_voice_start": "1504665540619",
-            "get_voice_end": "1504666260109",
-            "run_quality_start": "1504666260122",
-            "run_quality_end": "1504666410540",
-            "write_reprot_start": "1504666410745",
-            "write_reprot_end": "1504666409136"
-        }
+        [
+            ("get_voice_start": "1504665540619", 0)
+            ("get_voice_end": "1504666260109", 719490)
+            ("run_quality_start": "1504666260122", 13)
+            ("run_quality_end": "1504666410540", 150418)
+            ("write_reprot_start": "1504666410745", 205)
+            ("write_reprot_end": "1504666512341", 101596)
+        ]
 
         # 修改返回结果，增加按照时间排序。
+        # 增加每步用时（单位：毫秒）。
         """
         details = self.redis.hgetall("TASK:{start_time}:{task_id}".format(
             start_time=start_time, task_id=task_id))
-
-        return sorted(details.items(), lambda x, y: cmp(x[1], y[1]))
+        sorted_details = sorted(details.items(), lambda x, y: cmp(x[1], y[1]))
+        return self._add_interval(sorted_details)

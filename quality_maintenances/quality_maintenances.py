@@ -110,28 +110,21 @@ def detail(task_id, redis_host, redis_port, redis_db):
     table.field_names = TASK_DETAIL_HEADERS
     # 样例：task_id => "20170816_397"
     task_id_arr = task_id.split("_")
-    task_detail = qt.get_detail(task_id_arr[1], task_id_arr[0])
-    total = datetime.timedelta()
-    for i in range(0, len(task_detail)):
-        (task_step, current_start_time) = task_detail[i]
-        (_, previous_start_time) = task_detail[i - 1]
-        f_current_start_time = float(current_start_time) / 1000
-        f_previous_start_time = float(previous_start_time) / 1000
-        interval = "0:00:00.000000"
-        if f_current_start_time - f_previous_start_time > 0:
-            dt_curr = datetime.datetime.fromtimestamp(f_current_start_time)
-            dt_pre = datetime.datetime.fromtimestamp(f_previous_start_time)
-            interval = dt_curr - dt_pre
-            total += interval  # 计算总耗时
+    task_details = qt.get_detail(task_id_arr[1], task_id_arr[0])
+    total = 0
+    for task_detail in task_details:
+        (task_step, start_time, interval) = task_detail
+        total += interval  # 单位：毫秒
 
         table.add_row(
-            [task_step, qt._format_timestamp(
-                current_start_time), str(interval)]
+            [task_step, qt._format_timestamp(start_time),
+             datetime.timedelta(milliseconds=interval)]
         )
 
     click.echo(table)
     click.echo("质检任务总耗时：{}".format(
-        click.style(str(total), fg=CLICK_COLOR_INFO)))
+        click.style(
+            str(datetime.timedelta(milliseconds=total)), fg=CLICK_COLOR_INFO)))
 
 
 @cli.command(short_help="显示质检任务运行日志")
