@@ -81,7 +81,8 @@ def list(is_now, redis_host, redis_port, redis_db):
     table = PrettyTable()
     qt = _init_quality_task(redis_host, redis_port, redis_db)
     table.field_names = TASK_LIST_HEADERS
-    for task in qt.get_all(is_now):
+    tasks = qt.get_all(is_now)
+    for task in tasks:
         table.add_row([
             task["unique"], task["id"],
             QUALITY_TASK_TYPE[task["type"].upper()], task["voicetotal"],

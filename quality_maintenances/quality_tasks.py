@@ -49,6 +49,8 @@ class QualityTask:
                     tmp["id"])
                 tmp["starttime"] = self._format_timestamp(tmp["starttime"])
                 tmp["log_modifiedtime"] = self._get_log_modified(tmp["unique"])
+            else:
+                tmp["unique"] = "-"
 
             if "endtime" in tmp:
                 tmp["endtime"] = self._format_timestamp(tmp["endtime"])
