@@ -12,6 +12,11 @@ class TestQualityTask(unittest.TestCase):
             '170': '{"createtime":"2017-12-07 14:22:05","status":"D","voicetotal":333289,"nodename":"node69","type":"B","starttime":1512627840496}'
         }
 
+        self.multiple_tasks = {
+            '172': '{"createtime":"2017-12-07 15:13:06","status":"D","voicetotal":1152,"nodename":"node70","type":"C","starttime":1512630900591}',
+            '170': '{"createtime":"2017-12-07 14:22:05","status":"D","voicetotal":333289,"nodename":"node69","type":"B","starttime":1512627840496}'
+        }
+
     def test_default_redis_connection(self):
         """ 测试 Redis 默认连接 """
         try:
@@ -32,6 +37,21 @@ class TestQualityTask(unittest.TestCase):
         self.assertEqual(tasks[0]["nodename"], "node69")
         self.assertEqual(tasks[0]["type"], "B")
         self.assertEqual(tasks[0]["starttime"], "2017-12-07 14:24:00")
+
+    def test_multiple_tasks_flat(self):
+        """ 测试多个任务时的 _flat() 方法 """
+        tasks = self.qt._flat(self.multiple_tasks)
+
+        self.assertEqual(len(tasks), 2)
+        self.assertEqual(tasks[0]["id"], "170")
+        self.assertEqual(tasks[1]["id"], "172")
+        self.assertEqual(tasks[1]["unique"], "20171207_172")
+        self.assertEqual(tasks[1]["createtime"], "2017-12-07 15:13:06")
+        self.assertEqual(tasks[1]["status"], "D")
+        self.assertEqual(tasks[1]["voicetotal"], 1152)
+        self.assertEqual(tasks[1]["nodename"], "node70")
+        self.assertEqual(tasks[1]["type"], "C")
+        self.assertEqual(tasks[1]["starttime"], "2017-12-07 15:15:00")
 
     def test_none_tasks_flat(self):
         """ 测试没有任务时得到 _flat() 方法 """
