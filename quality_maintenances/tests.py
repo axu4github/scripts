@@ -11,11 +11,17 @@ class TestQualityTask(unittest.TestCase):
         self.one_tasks = {
             '170': '{"createtime":"2017-12-07 14:22:05","status":"D","voicetotal":333289,"nodename":"node69","type":"B","starttime":1512627840496}'
         }
-
         self.multiple_tasks = {
             '172': '{"createtime":"2017-12-07 15:13:06","status":"D","voicetotal":1152,"nodename":"node70","type":"C","starttime":1512630900591}',
             '170': '{"createtime":"2017-12-07 14:22:05","status":"D","voicetotal":333289,"nodename":"node69","type":"B","starttime":1512627840496}'
         }
+        self.task_detail = [
+            ('get_voice_start', '1512627840499'),
+            ('get_voice_end', '1512629078544'),
+            ('run_quality_start', '1512629096586'),
+            ('run_quality_end', '1512634612716'),
+            ('write_reprot_start', '1512634612720')
+        ]
 
     def test_default_redis_connection(self):
         """ 测试 Redis 默认连接 """
@@ -66,6 +72,14 @@ class TestQualityTask(unittest.TestCase):
 
         self.assertEqual(len(tasks), 0)
         self.assertEqual(tasks, [])
+
+    def test_add_interval(self):
+        """ 测试时间间隔 """
+        detail = self.qt._add_interval(self.task_detail)
+
+        self.assertEqual(detail[0][2], 0)
+        self.assertEqual(
+            detail[1][2], float(detail[1][1]) - float(detail[0][1]))
 
 
 if __name__ == "__main__":
