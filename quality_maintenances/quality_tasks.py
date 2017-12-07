@@ -28,7 +28,7 @@ class QualityTask:
         self.redis = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db_index)
 
-    def _flat(self, tasks=None):
+    def _flat(self, tasks={}):
         """
         将原始格式压平（类似 Spark 的 flatMap）并格式化如下几列内容
 
