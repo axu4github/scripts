@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import copy
+import json
 from quality_tasks import QualityTask
 
 
@@ -22,6 +24,16 @@ class TestQualityTask(unittest.TestCase):
             ('run_quality_end', '1512634612716'),
             ('write_reprot_start', '1512634612720')
         ]
+
+    def del_tasks_params(self, tasks, param):
+        """ 删除任务信息中的某些项 """
+        new_tasks = copy.copy(tasks)
+        for (task_id, task_info) in tasks.items():
+            task_info_dic = json.loads(task_info)
+            del task_info_dic[param]
+            new_tasks[task_id] = json.dumps(task_info_dic)
+
+        return new_tasks
 
     def test_default_redis_connection(self):
         """ 测试 Redis 默认连接 """
@@ -80,6 +92,21 @@ class TestQualityTask(unittest.TestCase):
         self.assertEqual(detail[0][2], 0)
         self.assertEqual(
             detail[1][2], float(detail[1][1]) - float(detail[0][1]))
+
+    def test_miss_starttime_params_task_flat(self):
+        """ 测试缺少 starttime 参数的 _flat() 方法 """
+        new_one_tasks = self.del_tasks_params(self.one_tasks, "starttime")
+        tasks = self.qt._flat(new_one_tasks)
+
+        self.assertTrue("starttime" in tasks[0])
+        self.assertEqual(tasks[0]["starttime"], 0)
+
+    def test_miss_voicetotal_params_task_flat(self):
+        """ 测试缺少 voicetotal 参数的 _flat() 方法 """
+        new_one_tasks = self.del_tasks_params(self.one_tasks, "voicetotal")
+        tasks = self.qt._flat(new_one_tasks)
+
+        self.assertTrue("voicetotal" not in tasks[0])
 
 
 if __name__ == "__main__":
