@@ -4,6 +4,11 @@ import unittest
 import copy
 import json
 from quality_tasks import QualityTask
+from quality_maintenances import (
+    DEFAULT_REDIS_HOST,
+    DEFAULT_REDIS_PORT,
+    DEFAULT_REDIS_DB_INDEX
+)
 
 
 class TestQualityTask(unittest.TestCase):
@@ -38,9 +43,12 @@ class TestQualityTask(unittest.TestCase):
     def test_default_redis_connection(self):
         """ 测试 Redis 默认连接 """
         try:
-            QualityTask().get_all()
+            qt = QualityTask(redis_host=DEFAULT_REDIS_HOST,
+                             redis_port=DEFAULT_REDIS_PORT,
+                             redis_db_index=DEFAULT_REDIS_DB_INDEX)
+            qt.get_all()
         except Exception as e:
-            self.assertTrue("Connection refused" in str(e))
+            self.assertTrue("Connection refused" not in str(e))
 
     def test_one_tasks_flat(self):
         """ 测试只有一个任务时的 _flat() 方法 """
