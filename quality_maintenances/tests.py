@@ -9,6 +9,26 @@ from quality_maintenances import (
     DEFAULT_REDIS_PORT,
     DEFAULT_REDIS_DB_INDEX
 )
+import os
+import commands
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+class TestFunctional(unittest.TestCase):
+    """ 功能测试 """
+
+    def setUp(self):
+        self.base_cmd = "python {0}/quality_maintenances.py".format(
+            BASE_DIR
+        )
+
+    def test_list_command(self):
+        """ 测试 python quality_maintenances.py list 命令 """
+        list_cmd = "{0} list".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output)
 
 
 class TestQualityTask(unittest.TestCase):
