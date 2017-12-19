@@ -44,7 +44,8 @@ class QualityTask:
             tmp["id"] = self._format_id(task_id)
             if "starttime" in tmp:
                 # $(start_time)_$(id)
-                tmp["unique"] = "{}_{}".format(
+                # 为了适应 python2.6 将 "{}_{}" 修改为 "{0}_{1}"
+                tmp["unique"] = "{0}_{1}".format(
                     self._format_timestamp(tmp["starttime"], "%Y%m%d"),
                     tmp["id"])
                 tmp["starttime"] = self._format_timestamp(tmp["starttime"])
