@@ -30,6 +30,13 @@ class TestFunctional(unittest.TestCase):
 
         self.assertTrue("Error" not in output)
 
+    def test_list_command_is_now_false(self):
+        """ 测试 python quality_maintenances.py list --is_now=false 命令 """
+        list_cmd = "{0} list --is_now=false".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output)
+
 
 class TestQualityTask(unittest.TestCase):
 
