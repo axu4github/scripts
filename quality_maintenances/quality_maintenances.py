@@ -122,7 +122,8 @@ def detail(task_id, redis_host, redis_port, redis_db):
         )
 
     click.echo(table)
-    click.echo("质检任务总耗时：{}".format(
+    # 兼容 python2.6 由 "{}" 改为 "{0}"
+    click.echo("质检任务总耗时：{0}".format(
         click.style(
             str(datetime.timedelta(milliseconds=total)), fg=CLICK_COLOR_INFO)))
 
@@ -145,12 +146,13 @@ def log(task_id, number, redis_host, redis_port, redis_db):
     log_paths = qt._get_log_path(task_unique)
     if len(log_paths) > 0:
         log_path = log_paths[0]
+        # 兼容 python2.6 由 "{}" 改为 "{n}"
         if number > 0:
-            cmd = "tail -n {} {}".format(number, log_path)
+            cmd = "tail -n {0} {1}".format(number, log_path)
         else:
-            cmd = "tail -f {}".format(log_path)
+            cmd = "tail -f {0}".format(log_path)
 
-        click.echo(click.style("执行命令：{}".format(cmd), fg=CLICK_COLOR_INFO))
+        click.echo(click.style("执行命令：{0}".format(cmd), fg=CLICK_COLOR_INFO))
         os.system(cmd)
         click.echo(os.linesep)
     else:
