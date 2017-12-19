@@ -37,6 +37,21 @@ class TestFunctional(unittest.TestCase):
 
         self.assertTrue("Error" not in output)
 
+    def test_detail_command(self):
+        """ 测试 python quality_maintenances.py detail --task_id=xxx_xxx 命令 """
+        detail_cmd = "{0} detail --task_id=xx_xx".format(self.base_cmd)
+        output = commands.getoutput(detail_cmd)
+
+        self.assertTrue("Error" not in output)
+
+    def test_log_command(self):
+        """ 测试 python quality_maintenances.py log --task_id=xxx_xxx 命令 """
+        log_cmd = "{0} log --task_id=xx_xx".format(self.base_cmd)
+        output = commands.getoutput(log_cmd)
+
+        self.assertTrue("Error" not in output)
+        self.assertEqual("错误：没有找到对应的日志文件！", output)
+
 
 class TestQualityTask(unittest.TestCase):
 
