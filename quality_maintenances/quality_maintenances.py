@@ -65,10 +65,11 @@ def cli():
 @cli.command(short_help="显示质检任务列表信息")
 @click.help_option("-h", "--help", help="使用说明")
 @click.option("--is_now", default=True, type=click.BOOL, help="是否显示当下的质检任务")
+@click.option("--tail", default=0, type=click.INT, help="最后n条记录")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
-def list(is_now, redis_host, redis_port, redis_db):
+def list(is_now, tail, redis_host, redis_port, redis_db):
     """
     显示质检任务列表信息
 
@@ -82,6 +83,9 @@ def list(is_now, redis_host, redis_port, redis_db):
     qt = _init_quality_task(redis_host, redis_port, redis_db)
     table.field_names = TASK_LIST_HEADERS
     tasks = qt.get_all(is_now)
+    if tail > 0:
+        tasks = tasks[-1 * tail:]
+
     for task in tasks:
         table.add_row([
             task["unique"], task["id"],
