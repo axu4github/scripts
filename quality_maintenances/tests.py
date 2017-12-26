@@ -28,14 +28,14 @@ class TestFunctional(unittest.TestCase):
         list_cmd = "{0} list".format(self.base_cmd)
         output = commands.getoutput(list_cmd)
 
-        self.assertTrue("Error" not in output)
+        self.assertTrue("Error" not in output, output)
 
     def test_list_command_is_now_false(self):
         """ 测试 python quality_maintenances.py list --is_now=false 命令 """
         list_cmd = "{0} list --is_now=false".format(self.base_cmd)
         output = commands.getoutput(list_cmd)
 
-        self.assertTrue("Error" not in output)
+        self.assertTrue("Error" not in output, output)
 
     def test_detail_command(self):
         """ 测试 python quality_maintenances.py detail --task_id=xxx_xxx 命令 """
