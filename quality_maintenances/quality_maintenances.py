@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import re
 import time
 import click
 import datetime
+import pymysql
 from quality_tasks import QualityTask
 from prettytable import PrettyTable
 import os
@@ -22,9 +24,10 @@ CLICK_COLOR_INFO = "green"
 CLICK_COLOR_ERROR = "red"
 
 # 头信息
-TASK_LIST_HEADERS_NAME = ["唯一标识", "质检编号", "质检类型", "质检录音量",
+TASK_LIST_HEADERS_NAME = ["唯一标识", "质检编号", "质检类型", "质检录音量", "规则数量", "关键词数量",
                           "质检任务状态", "质检开始时间", "日志更新时间", "耗时", "执行服务器"]
 TASK_LIST_HEADERS_CODE = ["unique", "id", "type", "voicetotal",
+                          "rule_num", "kw_num",
                           "status", "starttime", "log_modifiedtime",
                           "interval", "nodename"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
@@ -53,10 +56,36 @@ DEFAULT_REDIS_HOST = "10.0.3.21"
 DEFAULT_REDIS_PORT = 6379
 DEFAULT_REDIS_DB_INDEX = 0
 
+MYSQL_HOST = "10.0.1.68"
+MYSQL_USER = "root"
+MYSQL_PASSWD = "root123"
+MYSQL_DB = "quality"
 
-def get_detail_by(id):
+SQL = """
+    SELECT
+        qrd.detectionExpression
+    FROM
+        QualityRuleDetection qrd,
+        QualityTask qt,
+        QualityRule qr
+    WHERE
+        qt.qualityRuleId = qr.id AND
+        qrd.qualityId = qr.id AND
+        qt.id = {0};
+"""
+
+conn = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER,
+                       passwd=MYSQL_PASSWD, db=MYSQL_DB)
+cur = conn.cursor()
+
+
+def get_detail_by(task_id):
     """ 根据质检任务编号获取该任务的 关键词数量 和 规则数量 """
-    pass
+    rule_num = cur.execute(SQL.format(task_id))
+    kw_str = "and".join([rule[0] for rule in cur]).lower()
+    kw_num = len(re.split(r"and|or|near|after|before|,", kw_str))
+
+    return (rule_num, kw_num)
 
 
 def set_if_not_none(judge_value, default_value):
@@ -124,7 +153,12 @@ def tasks_formater(tasks, show_detail):
         del(task["createtime"])
 
         if show_detail:
-            pass
+            (rule_num, kw_num) = get_detail_by(task["id"])
+            task["rule_num"] = rule_num
+            task["kw_num"] = kw_num
+        else:
+            task["rule_num"] = "-"
+            task["kw_num"] = "-"
 
     map(formater, tasks)
     return tasks
@@ -219,6 +253,8 @@ def list(is_now, tail, show_detail, export_result, export_file,
                    task["id"],
                    QUALITY_TASK_TYPE[task["type"].upper()],
                    task["voicetotal"],
+                   task["rule_num"],
+                   task["kw_num"],
                    QUALITY_TASK_STATUS[task["status"].upper()],
                    task["starttime"],
                    task["log_modifiedtime"],
