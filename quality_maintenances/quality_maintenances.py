@@ -72,10 +72,6 @@ def tasks_filter(tasks, tail, date_filter, status_filter,
                  type_filter, server_filter, s="|"):
     """ 任务过滤方法，通过不同条件过滤质检任务列表。 """
 
-    # 通过条数过滤
-    if tail > 0:
-        tasks = tasks[-1 * tail:]
-
     # 通过日期过滤
     if date_filter is not None:
         tasks = filter(lambda t: t["unique"].startswith(date_filter), tasks)
@@ -98,6 +94,10 @@ def tasks_filter(tasks, tail, date_filter, status_filter,
             lambda t: t["nodename"].upper() in server_filter.upper().split(s),
             tasks)
 
+    # 通过条数过滤
+    if tail > 0:
+        tasks = tasks[-1 * tail:]
+
     return tasks
 
 
@@ -118,7 +118,7 @@ def cli():
 @click.option("--tail", default=0, type=click.INT, help="最后n条记录")
 @click.option("--date_filter", default=None, help="根据时间过滤质检任务信息")
 @click.option("--status_filter", default=None, help="根据状态过滤质检任务信息")
-@click.option("--type_filter", default=None, help="根据任务类型过滤质检任务信息")
+@click.option("--type_filter", default=None, help="根据质检任务类型过滤质检任务信息")
 @click.option("--server_filter", default=None, help="根据服务器名称过滤质检任务信息")
 @click.option("--show_detail", default=False, type=click.BOOL, help="是否显示详细信息")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
