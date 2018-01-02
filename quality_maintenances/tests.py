@@ -53,6 +53,43 @@ class TestFunctional(unittest.TestCase):
 
         self.assertTrue("Error" not in output, output)
 
+    def test_list_command_status_filter_params(self):
+        """
+        测试 python quality_maintenances.py list --status_filter="E|A" 命令
+        """
+        list_cmd = "{0} list --status_filter='E|A'".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
+    def test_list_command_type_filter_params(self):
+        """
+        测试 python quality_maintenances.py list --type_filter="A|D" 命令
+        """
+        list_cmd = "{0} list --type_filter='A|D'".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
+    def test_list_command_server_filter_params(self):
+        """
+        测试 python quality_maintenances.py list --server_filter="A|D" 命令
+        """
+        list_cmd = "{0} list --server_filter='node69|node70'".format(
+            self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
+    def test_list_command_show_detail_params(self):
+        """
+        测试 python quality_maintenances.py list --show_detail=True 命令
+        """
+        list_cmd = "{0} list --show_detail=True".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
     def test_detail_command(self):
         """ 测试 python quality_maintenances.py detail --task_id=xxx_xxx 命令 """
         detail_cmd = "{0} detail --task_id=xx_xx".format(self.base_cmd)

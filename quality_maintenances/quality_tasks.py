@@ -57,6 +57,8 @@ class QualityTask:
 
             if "endtime" in tmp:
                 tmp["endtime"] = self._format_timestamp(tmp["endtime"])
+            else:
+                tmp["endtime"] = 0
 
             formated.append(tmp)
 

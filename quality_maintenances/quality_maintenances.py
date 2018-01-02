@@ -19,8 +19,8 @@ CLICK_COLOR_INFO = "green"
 CLICK_COLOR_ERROR = "red"
 
 # 头信息
-TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型",
-                     "质检录音量", "质检开始时间", "日志更新时间", "执行服务器"]
+TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量",
+                     "质检任务状态", "质检开始时间", "日志更新时间", "耗时", "执行服务器"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
 
 # 质检类型
@@ -31,9 +31,26 @@ QUALITY_TASK_TYPE = {
     "D": "常规关联质检(D)",
 }
 
+# 质检任务状态
+QUALITY_TASK_STATUS = {
+    "A": "未启动(A)",  # CREATE
+    "B": "已取消(B)",  # CANCEL
+    "C": "启动(C)",  # STARTUP
+    "D": "执行中(D)",  # RUNNING
+    "E": "已完成(E)",  # DONE
+    "F": "失败(F)",  # FAILURE
+    "I": "预处理(I)",  # YCL
+    "W": "排队中(W)"  # DDZ
+}
+
 DEFAULT_REDIS_HOST = "10.0.3.21"
 DEFAULT_REDIS_PORT = 6379
 DEFAULT_REDIS_DB_INDEX = 0
+
+
+def get_detail_by(id):
+    """ 根据质检任务编号获取该任务的 关键词数量 和 规则数量 """
+    pass
 
 
 def set_if_not_none(judge_value, default_value):
@@ -49,6 +66,39 @@ def _init_quality_task(redis_host, redis_port, redis_db):
     _port = set_if_not_none(redis_port, DEFAULT_REDIS_PORT)
     _db = set_if_not_none(redis_db, DEFAULT_REDIS_DB_INDEX)
     return QualityTask(redis_host=_host, redis_port=_port, redis_db=_db)
+
+
+def tasks_filter(tasks, tail, date_filter, status_filter,
+                 type_filter, server_filter, s="|"):
+    """ 任务过滤方法，通过不同条件过滤质检任务列表。 """
+
+    # 通过条数过滤
+    if tail > 0:
+        tasks = tasks[-1 * tail:]
+
+    # 通过日期过滤
+    if date_filter is not None:
+        tasks = filter(lambda t: t["unique"].startswith(date_filter), tasks)
+
+    # 通过状态过滤
+    if status_filter is not None:
+        tasks = filter(
+            lambda t: t["status"].upper() in status_filter.upper().split(s),
+            tasks)
+
+    # 通过质检类型过滤
+    if type_filter is not None:
+        tasks = filter(
+            lambda t: t["type"].upper() in type_filter.upper().split(s),
+            tasks)
+
+    # 通过服务器名称过滤
+    if server_filter is not None:
+        tasks = filter(
+            lambda t: t["nodename"].upper() in server_filter.upper().split(s),
+            tasks)
+
+    return tasks
 
 
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
@@ -67,10 +117,15 @@ def cli():
 @click.option("--is_now", default=True, type=click.BOOL, help="是否显示当下的质检任务")
 @click.option("--tail", default=0, type=click.INT, help="最后n条记录")
 @click.option("--date_filter", default=None, help="根据时间过滤质检任务信息")
+@click.option("--status_filter", default=None, help="根据状态过滤质检任务信息")
+@click.option("--type_filter", default=None, help="根据任务类型过滤质检任务信息")
+@click.option("--server_filter", default=None, help="根据服务器名称过滤质检任务信息")
+@click.option("--show_detail", default=False, type=click.BOOL, help="是否显示详细信息")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
-def list(is_now, tail, date_filter, redis_host, redis_port, redis_db):
+def list(is_now, tail, date_filter, status_filter, type_filter, server_filter,
+         show_detail, redis_host, redis_port, redis_db):
     """
     显示质检任务列表信息
 
@@ -85,24 +140,38 @@ def list(is_now, tail, date_filter, redis_host, redis_port, redis_db):
     ### 2018-01-02
 
     - 添加 date_filter 参数，以便完成 根据时间过滤质检任务信息 需求。
+    - 添加 status_filter 参数，以便完成 根据状态过滤质检任务信息 需求。
+    - 添加 type_filter 参数，以便完成 根据质检任务类型过滤质检任务信息 需求。
+    - 添加 server_filter 参数，以便完成 根据服务器名称过滤质检任务信息 需求。
+    - 添加 show_detail 参数，以便完成 在列表命令时显示更多的信息 需求。
+      增加显示项 关键词数量、规则数量、整体执行时间、任务执行状态；并为之后的导出功能提供数据基础。
     """
     table = PrettyTable()
     qt = _init_quality_task(redis_host, redis_port, redis_db)
     table.field_names = TASK_LIST_HEADERS
     tasks = qt.get_all(is_now)
-    if tail > 0:
-        tasks = tasks[-1 * tail:]
-
-    if date_filter is not None:
-        tasks = filter(
-            lambda task: task["unique"].startswith(date_filter), tasks)
+    tasks = tasks_filter(tasks, tail, date_filter,
+                         status_filter, type_filter, server_filter)
+    # tasks = tasks_formater()
 
     for task in tasks:
-        table.add_row([
-            task["unique"], task["id"],
-            QUALITY_TASK_TYPE[task["type"].upper()], task["voicetotal"],
-            task["starttime"], task["log_modifiedtime"],
-            task["nodename"]])
+        start_datetime = datetime.datetime.strptime(
+            task["starttime"], "%Y-%m-%d %H:%M:%S")
+        interval = datetime.timedelta()
+        if task["endtime"] != 0 and task["status"].upper() == "E":
+            end_datetime = datetime.datetime.strptime(
+                task["endtime"], "%Y-%m-%d %H:%M:%S")
+            interval = end_datetime - start_datetime
+
+        row = [task["unique"], task["id"],
+               QUALITY_TASK_TYPE[task["type"].upper()], task["voicetotal"],
+               QUALITY_TASK_STATUS[task["status"].upper()], start_datetime,
+               task["log_modifiedtime"], interval, task["nodename"]]
+
+        if show_detail:
+            pass
+
+        table.add_row(row)
 
     click.echo()
     click.echo(table)
