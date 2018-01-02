@@ -9,6 +9,7 @@ setup(
         "click==6.7",
         "prettytable==0.7.2",
         "redis==2.10.6",
+        "MySQL-python==1.2.5",
     ],
     entry_points="""
         [console_scripts]
