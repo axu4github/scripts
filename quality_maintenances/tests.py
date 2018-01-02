@@ -90,6 +90,16 @@ class TestFunctional(unittest.TestCase):
 
         self.assertTrue("Error" not in output, output)
 
+    def test_list_command_export_result_params(self):
+        """
+        测试 python quality_maintenances.py list --export_result=True 命令
+        """
+        list_cmd = "{0} list --date_filter=0000 --export_result=True".format(
+            self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
     def test_detail_command(self):
         """ 测试 python quality_maintenances.py detail --task_id=xxx_xxx 命令 """
         detail_cmd = "{0} detail --task_id=xx_xx".format(self.base_cmd)

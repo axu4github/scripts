@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import click
 import datetime
 from quality_tasks import QualityTask
@@ -11,6 +12,8 @@ sys.setdefaultencoding("utf-8")
 
 """ 质检任务维护脚本 """
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # click 模块配置
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"],
@@ -19,8 +22,11 @@ CLICK_COLOR_INFO = "green"
 CLICK_COLOR_ERROR = "red"
 
 # 头信息
-TASK_LIST_HEADERS = ["唯一标识", "质检编号", "质检类型", "质检录音量",
-                     "质检任务状态", "质检开始时间", "日志更新时间", "耗时", "执行服务器"]
+TASK_LIST_HEADERS_NAME = ["唯一标识", "质检编号", "质检类型", "质检录音量",
+                          "质检任务状态", "质检开始时间", "日志更新时间", "耗时", "执行服务器"]
+TASK_LIST_HEADERS_CODE = ["unique", "id", "type", "voicetotal",
+                          "status", "starttime", "log_modifiedtime",
+                          "interval", "nodename"]
 TASK_DETAIL_HEADERS = ["执行步骤", "开始执行时间", "耗时"]
 
 # 质检类型
@@ -101,6 +107,47 @@ def tasks_filter(tasks, tail, date_filter, status_filter,
     return tasks
 
 
+def tasks_formater(tasks, show_detail):
+    """ 将质检任务信息转换为输出内容 """
+    def formater(task):
+        start_datetime = datetime.datetime.strptime(
+            task["starttime"], "%Y-%m-%d %H:%M:%S")
+        interval = datetime.timedelta()
+        if task["endtime"] != 0 and task["status"].upper() == "E":
+            end_datetime = datetime.datetime.strptime(
+                task["endtime"], "%Y-%m-%d %H:%M:%S")
+            interval = end_datetime - start_datetime
+
+        task["interval"] = interval
+
+        del(task["endtime"])
+        del(task["createtime"])
+
+        if show_detail:
+            pass
+
+    map(formater, tasks)
+    return tasks
+
+
+def get_export_file(export_file=None):
+    """ 获取导出文件地址 """
+    if export_file is None:
+        export_file = "{0}/exported_{1}.csv".format(BASE_DIR, time.time())
+
+    return export_file
+
+
+def csvfile_put_contents(file, contents):
+    """ 写CSV文件 """
+    import csv
+    with open(file, "w") as csvfile:
+        fieldnames = TASK_LIST_HEADERS_CODE
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(contents)
+
+
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.help_option("-h", "--help", help="使用说明")
 def cli():
@@ -121,11 +168,14 @@ def cli():
 @click.option("--type_filter", default=None, help="根据质检任务类型过滤质检任务信息")
 @click.option("--server_filter", default=None, help="根据服务器名称过滤质检任务信息")
 @click.option("--show_detail", default=False, type=click.BOOL, help="是否显示详细信息")
+@click.option("--export_result", default=False, type=click.BOOL, help="是否导出文件")
+@click.option("--export_file", default=None, help="自定义导出文件")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
-def list(is_now, tail, date_filter, status_filter, type_filter, server_filter,
-         show_detail, redis_host, redis_port, redis_db):
+def list(is_now, tail, show_detail, export_result, export_file,
+         date_filter, status_filter, type_filter, server_filter,
+         redis_host, redis_port, redis_db):
     """
     显示质检任务列表信息
 
@@ -140,41 +190,52 @@ def list(is_now, tail, date_filter, status_filter, type_filter, server_filter,
     ### 2018-01-02
 
     - 添加 date_filter 参数，以便完成 根据时间过滤质检任务信息 需求。
+
     - 添加 status_filter 参数，以便完成 根据状态过滤质检任务信息 需求。
+
     - 添加 type_filter 参数，以便完成 根据质检任务类型过滤质检任务信息 需求。
+
     - 添加 server_filter 参数，以便完成 根据服务器名称过滤质检任务信息 需求。
+
     - 添加 show_detail 参数，以便完成 在列表命令时显示更多的信息 需求。
       增加显示项 关键词数量、规则数量、整体执行时间、任务执行状态；并为之后的导出功能提供数据基础。
+
+    - 添加 export_result 参数，以便完成 导出列表命令显示结果 需求。
+
+    - 添加 export_file 参数，以便完成 导出自定义指定导出文件 需求。
     """
-    table = PrettyTable()
     qt = _init_quality_task(redis_host, redis_port, redis_db)
-    table.field_names = TASK_LIST_HEADERS
     tasks = qt.get_all(is_now)
+    # 过滤
     tasks = tasks_filter(tasks, tail, date_filter,
                          status_filter, type_filter, server_filter)
-    # tasks = tasks_formater()
+    # 转换
+    tasks = tasks_formater(tasks, show_detail)
+    if not export_result:
+        table = PrettyTable()
+        table.field_names = TASK_LIST_HEADERS_NAME
+        for task in tasks:
+            row = [task["unique"],
+                   task["id"],
+                   QUALITY_TASK_TYPE[task["type"].upper()],
+                   task["voicetotal"],
+                   QUALITY_TASK_STATUS[task["status"].upper()],
+                   task["starttime"],
+                   task["log_modifiedtime"],
+                   task["interval"],
+                   task["nodename"]]
+            table.add_row(row)
 
-    for task in tasks:
-        start_datetime = datetime.datetime.strptime(
-            task["starttime"], "%Y-%m-%d %H:%M:%S")
-        interval = datetime.timedelta()
-        if task["endtime"] != 0 and task["status"].upper() == "E":
-            end_datetime = datetime.datetime.strptime(
-                task["endtime"], "%Y-%m-%d %H:%M:%S")
-            interval = end_datetime - start_datetime
-
-        row = [task["unique"], task["id"],
-               QUALITY_TASK_TYPE[task["type"].upper()], task["voicetotal"],
-               QUALITY_TASK_STATUS[task["status"].upper()], start_datetime,
-               task["log_modifiedtime"], interval, task["nodename"]]
-
-        if show_detail:
-            pass
-
-        table.add_row(row)
-
-    click.echo()
-    click.echo(table)
+        click.echo()
+        click.echo(table)
+    else:
+        if len(tasks) > 0:
+            file = get_export_file(export_file)
+            csvfile_put_contents(file, tasks)
+            click.echo(
+                click.style("导出完成：{0}".format(file), fg=CLICK_COLOR_INFO))
+        else:
+            click.echo(click.style("没有内容！", fg=CLICK_COLOR_ERROR))
 
 
 @cli.command(short_help="显示质检任务详细信息")
