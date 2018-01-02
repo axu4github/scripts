@@ -37,6 +37,22 @@ class TestFunctional(unittest.TestCase):
 
         self.assertTrue("Error" not in output, output)
 
+    def test_list_command_tail_params(self):
+        """ 测试 python quality_maintenances.py list --tail=0 命令 """
+        list_cmd = "{0} list --tail=0".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
+    def test_list_command_date_filter_params(self):
+        """
+        测试 python quality_maintenances.py list --date_filter=00000000 命令
+        """
+        list_cmd = "{0} list --date_filter=00000000".format(self.base_cmd)
+        output = commands.getoutput(list_cmd)
+
+        self.assertTrue("Error" not in output, output)
+
     def test_detail_command(self):
         """ 测试 python quality_maintenances.py detail --task_id=xxx_xxx 命令 """
         detail_cmd = "{0} detail --task_id=xx_xx".format(self.base_cmd)

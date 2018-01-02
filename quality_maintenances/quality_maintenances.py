@@ -66,18 +66,25 @@ def cli():
 @click.help_option("-h", "--help", help="使用说明")
 @click.option("--is_now", default=True, type=click.BOOL, help="是否显示当下的质检任务")
 @click.option("--tail", default=0, type=click.INT, help="最后n条记录")
+@click.option("--date_filter", default=None, help="根据时间过滤质检任务信息")
 @click.option("--redis_host", default=None, help="Redis 服务 IP 地址")
 @click.option("--redis_port", default=None, type=click.INT, help="Redis 服务端口号")
 @click.option("--redis_db", default=None, type=click.INT, help="Redis DB 索引")
-def list(is_now, tail, redis_host, redis_port, redis_db):
+def list(is_now, tail, date_filter, redis_host, redis_port, redis_db):
     """
     显示质检任务列表信息
 
-    实例：
+    ## 实例：
 
     - 获取正在处理的质检任务信息: `python quality_maintenances.py list`
 
     - 获取已经处理完成的质检任务信息: `python quality_maintenances.py list --is_now=false`
+
+    ## 修改日志（Change Log）
+
+    ### 2018-01-02
+
+    - 添加 date_filter 参数，以便完成 根据时间过滤质检任务信息 需求。
     """
     table = PrettyTable()
     qt = _init_quality_task(redis_host, redis_port, redis_db)
@@ -85,6 +92,10 @@ def list(is_now, tail, redis_host, redis_port, redis_db):
     tasks = qt.get_all(is_now)
     if tail > 0:
         tasks = tasks[-1 * tail:]
+
+    if date_filter is not None:
+        tasks = filter(
+            lambda task: task["unique"].startswith(date_filter), tasks)
 
     for task in tasks:
         table.add_row([
