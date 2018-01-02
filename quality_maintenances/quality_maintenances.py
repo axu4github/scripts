@@ -4,7 +4,7 @@ import re
 import time
 import click
 import datetime
-import pymysql
+import MySQLdb
 from quality_tasks import QualityTask
 from prettytable import PrettyTable
 import os
@@ -74,7 +74,7 @@ SQL = """
         qt.id = {0};
 """
 
-conn = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER,
+conn = MySQLdb.connect(host=MYSQL_HOST, user=MYSQL_USER,
                        passwd=MYSQL_PASSWD, db=MYSQL_DB)
 cur = conn.cursor()
 
