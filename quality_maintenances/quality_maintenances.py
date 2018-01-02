@@ -83,7 +83,7 @@ def get_detail_by(task_id):
     """ 根据质检任务编号获取该任务的 关键词数量 和 规则数量 """
     rule_num = cur.execute(SQL.format(task_id))
     kw_str = "and".join([rule[0] for rule in cur]).lower()
-    kw_num = len(re.split(r"and|or|near|after|before|,", kw_str))
+    kw_num = len(re.split(r"and|or|near|after|before|except|no|,", kw_str))
 
     return (rule_num, kw_num)
 
