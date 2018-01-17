@@ -48,6 +48,7 @@ QUALITY_TASK_STATUS = {
     "D": "执行中(D)",  # RUNNING
     "E": "已完成(E)",  # DONE
     "F": "失败(F)",  # FAILURE
+    "H": "数据量过大(H)",
     "I": "预处理(I)",  # YCL
     "W": "排队中(W)"  # DDZ
 }
