@@ -16,7 +16,10 @@ def remote_solr_restart(host):
         fabfile=BASE + "/solr_actions.py",
         host=host
     )
-    commands.getstatusoutput(command)
+    (status, message) = commands.getstatusoutput(command)
+    if status != 0:
+        print("EXECUTE COMMAND: [{0}] ERROR".format(command))
+        print("ERROR MESSAGE: [{0}]".format(message))
 
 
 def restart_stoped_solr_node():
