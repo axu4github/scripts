@@ -4,7 +4,6 @@ import os
 
 
 class Config(object):
-
     """ 配置 """
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,3 +19,8 @@ class Config(object):
         terminal_width=100)
 
     SOLR_NODES = ["10.0.3.48:8983", "10.0.3.50:8983"]
+
+    FILE_APPEND = "FILE_APPEND"
+
+    HBASE_HOST = "10.0.3.45"
+    HBASE_TABLE = "smartv"

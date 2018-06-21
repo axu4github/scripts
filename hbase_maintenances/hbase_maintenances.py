@@ -30,15 +30,13 @@ def delete(row_key=None, query=None, srf=None):
     if row_key is not None:
         HBaseClient().delete(row_key)
     elif query is not None:
-        response = SolrCloudClient(Config.SOLR_NODES).download(
-            query, fl="id")
+        response = SolrCloudClient(Config.SOLR_NODES).download(query, fl="id")
         if response.numFound > 0:
             if srf is None:
                 srf = Config.DEFAULT_SOLR_RESULT_FILE
 
-            HBaseClient().delete_from_file(
-                Utils.file_put_contents(response.docs, srf),
-                Config.HBASE_DELETED_FILELIST)
+            if Utils.file_put_contents(response.docs, srf):
+                HBaseClient().delete_from_file(srf)
     else:
         pass
 

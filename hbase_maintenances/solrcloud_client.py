@@ -4,7 +4,7 @@ from solrcloudpy.connection import SolrConnection
 
 
 class SolrCloudClient(object):
-    """Solr 客户端"""
+    """ Solr 客户端 """
 
     def __init__(self, nodes, version="5.5.1", collection="collection1"):
         self.nodes = nodes
