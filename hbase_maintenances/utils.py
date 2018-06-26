@@ -9,20 +9,25 @@ class Utils(object):
     """ 工具类 """
 
     @staticmethod
-    def put_file_contents(contents, filepath, mode=None):
+    def put_file_contents(contents, filepath, mode=None, content_parser=None):
+        f = None
         if mode is None:
             f = open(filepath, "w")
         elif mode == Config.FILE_APPEND:
-            if not os.path.exists(filepath) or \
-               not os.path.isfile(filepath):
-                raise Exception(
-                    """
-                    File {0} is not Exists or is not File In FILE APPEND MODE.
-                    """.format(filepath).strip())
-
             f = open(filepath, "a")
+        else:
+            raise Exception("MODE [{0}] Not Found.".format(mode))
+
         try:
+            if f is None:
+                raise Exception("""
+                    Init File Handle Error. Please Check Mode Parameter.
+                """.strip())
+
             for content in contents:
+                if content_parser is not None:
+                    content = content_parser(content)
+
                 f.write("{0}{1}".format(content, os.linesep))
         except Exception as e:
             raise e

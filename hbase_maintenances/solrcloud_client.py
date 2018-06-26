@@ -1,6 +1,8 @@
 # coding=utf-8
 
-from solrcloudpy.connection import SolrConnection
+import os
+from solrcloudpy import SearchOptions, SolrConnection
+from utils import Utils
 
 
 class SolrCloudClient(object):
@@ -12,27 +14,58 @@ class SolrCloudClient(object):
         self.collection = collection
 
         self._init_connection()
+        self.set_collection(collection)
 
     def _init_connection(self):
         self.conn = SolrConnection(
             self.nodes, version=self.version, timeout=6000)
 
-    def _init_collection(self, collection=None):
+    def set_collection(self, collection=None):
         if collection is None:
             collection = self.collection
 
         self.coll = self.conn[collection]
 
-    def search(self, query, fl=None, start=0, rows=20, collection=None):
-        self._init_collection(collection)
+    def make_query(self, query):
+        so = SearchOptions()
+        so.commonparams.q(query["q"])
+        return so
+
+    def search(self, query, fl=None, start=0, rows=20):
         search_query = {"q": set([query]), "rows": rows, "start": start}
         if fl is not None:
             search_query["fl"] = set([fl])
 
         return self.coll.search(search_query).result.response
 
-    def download(self, query, fl=None, collection=None):
-        return self.search(
-            query=query, fl=fl,
-            collection=collection,
-            rows=1000000)
+    def create(self, docs, commit=True):
+        self.coll.add(docs)
+        if commit:
+            self.coll.commit()
+
+        return True
+
+    def delete(self, doc_id=None, query=None, commit=True):
+        delete_query = None
+        if doc_id is not None:
+            delete_query = {"q": "id:{0}".format(doc_id)}
+        elif query is not None:
+            delete_query = {"q": query}
+        else:
+            raise Exception("None id or query")
+
+        self.coll.delete(self.make_query(delete_query), commit=commit)
+        return True
+
+    def download(self, query, download_file, fl="id", collection=None):
+        if os.path.isfile(download_file):
+            raise Exception(
+                "Download File [{0}] Exists.".format(download_file))
+
+        result = self.search(
+            query=query, fl=fl, rows=1000000)
+        if result.numFound > 0:
+            Utils.put_file_contents(
+                result.docs, download_file, content_parser=lambda x: x[fl])
+
+        return True
