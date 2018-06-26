@@ -5,6 +5,7 @@ from solrcloud_client import SolrCloudClient
 from utils import Utils
 from configs import Config
 import click
+import os
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -28,15 +29,21 @@ def cli():
 @click.option("--srf", default=None, help="Solr 查询结果文件（Solr Result File）")
 def delete(row_key=None, query=None, srf=None):
     if row_key is not None:
-        HBaseClient().delete(row_key)
+        HBaseClient(Config.HBASE_HOST, Config.HBASE_TABLE).delete(row_key)
     elif query is not None:
-        response = SolrCloudClient(Config.SOLR_NODES).download(query, fl="id")
-        if response.numFound > 0:
-            if srf is None:
-                srf = Config.DEFAULT_SOLR_RESULT_FILE
+        if srf is None:
+            srf = Config.DEFAULT_SOLR_RESULT_FILE
 
-            if Utils.file_put_contents(response.docs, srf):
-                HBaseClient().delete_from_file(srf)
+        if SolrCloudClient(Config.SOLR_NODES).download(
+                query, srf, fl="id"):
+            deleted_file = Utils.get_deleted_filepath(srf)
+            start_number = 1
+            if os.path.exists(deleted_file) and os.path.isfile(deleted_file):
+                start_number = Utils.get_file_line_number(deleted_file)
+
+            HBaseClient(
+                Config.HBASE_HOST, Config.HBASE_TABLE).delete_from_file(
+                    srf, start=start_number)
     else:
         pass
 

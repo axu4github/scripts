@@ -4,12 +4,14 @@ import happybase
 import os
 from utils import Utils
 from configs import Config
+from loggings import LoggableMixin
 
 
-class HBaseClient(object):
+class HBaseClient(LoggableMixin):
     """ HBase 客户端 """
 
     def __init__(self, host, table=None):
+        super(HBaseClient, self).__init__()
         self.batch_number = 10000
         self.connection = happybase.Connection(host)
         if table is not None:
@@ -42,24 +44,46 @@ class HBaseClient(object):
                 "File Path: [{0}] is not Exists or is not File.".format(
                     filepath))
 
+        file_lines = Utils.get_file_line_number(filepath)
+        self.logger.info(
+            "Delete From File: [{0}], Line Number: [{1}].".format(
+                filepath, file_lines))
+        self.logger.info("- Start Line: [{0}].".format(start))
         with open(filepath, "r") as f:
             i, buffer_data = 1, []
+            batch_start_line, batch_start_flag = 1, True
             for line in f:
                 if i < start:
                     i += 1
                     continue
                 else:
-                    i += 1
+                    if batch_start_flag:
+                        batch_start_line = i
+
+                    batch_start_flag = False
                     # 若到达 self.batch_number 数量，则删除缓冲区数据
                     if len(buffer_data) == self.batch_number:
+                        self.logger.info(
+                            "- Start Batch Delete [{0} To {1}].".format(
+                                batch_start_line, i))
+                        self.logger.debug(
+                            "- Delete RowKeys: [{0}]".format(
+                                ", ".join(buffer_data)))
                         self.batch_delete_and_record(
                             buffer_data, filepath, start)
-                        buffer_data = []
+                        buffer_data, batch_start_flag = [], True
 
                     buffer_data.append(line.strip())
+                    i += 1
 
             # 删除最后不到 self.batch_number 的缓冲区数据
             if len(buffer_data) > 0:
+                self.logger.info(
+                    "- Final Batch Delete [{0} To {1}].".format(
+                        file_lines - len(buffer_data), file_lines))
+                self.logger.debug(
+                    "- Final Delete RowKeys: [{0}]".format(
+                        ", ".join(buffer_data)))
                 self.batch_delete_and_record(buffer_data, filepath, start)
 
         return True

@@ -10,6 +10,7 @@ class Utils(object):
 
     @staticmethod
     def put_file_contents(contents, filepath, mode=None, content_parser=None):
+        """ 将内容写入指定文件中 """
         f = None
         if mode is None:
             f = open(filepath, "w")
@@ -38,6 +39,7 @@ class Utils(object):
 
     @staticmethod
     def get_file_line_number(filepath):
+        """ 获取文件行数 """
         line_number = 0
         if os.path.isfile(filepath):
             cmd = "wc -l {0}".format(filepath)

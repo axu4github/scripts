@@ -3,12 +3,14 @@
 import os
 from solrcloudpy import SearchOptions, SolrConnection
 from utils import Utils
+from loggings import LoggableMixin
 
 
-class SolrCloudClient(object):
+class SolrCloudClient(LoggableMixin):
     """ Solr 客户端 """
 
     def __init__(self, nodes, version="5.5.1", collection="collection1"):
+        super(SolrCloudClient, self).__init__()
         self.nodes = nodes
         self.version = version
         self.collection = collection
@@ -33,6 +35,7 @@ class SolrCloudClient(object):
 
     def search(self, query, fl=None, start=0, rows=20):
         search_query = {"q": set([query]), "rows": rows, "start": start}
+        self.logger.info("Solr Search Query: [{0}]".format(search_query))
         if fl is not None:
             search_query["fl"] = set([fl])
 
