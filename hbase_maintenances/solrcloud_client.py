@@ -70,5 +70,7 @@ class SolrCloudClient(LoggableMixin):
         if result.numFound > 0:
             Utils.put_file_contents(
                 result.docs, download_file, content_parser=lambda x: x[fl])
+        else:
+            raise Exception("Solr Query: [{0}] None Result.".format(query))
 
         return True

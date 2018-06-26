@@ -2,6 +2,7 @@
 
 import os
 import commands
+import time
 from configs import Config
 
 
@@ -54,3 +55,8 @@ class Utils(object):
     @staticmethod
     def get_deleted_filepath(filepath):
         return "{0}.deleted".format(filepath)
+
+    @staticmethod
+    def get_solr_result_filepath(query):
+        return os.path.join(Config.BASE_DIR, "{0}_{1}.txt".format(
+            time.strftime("%Y%m%d-%H%M%S", time.localtime()), query))
