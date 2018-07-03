@@ -12,8 +12,7 @@ CLICK_CONTEXT_SETTINGS = dict(
     terminal_width=100)
 
 CONTENT_SEPARATOR = "\t"
-ROLE_SERVICE = "坐席"
-ROLE_CUSTOMER = "客户"
+FILE_APPEND = "FILE_APPEND"
 
 
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
@@ -31,7 +30,37 @@ def gbk_to_utf8(_str):
     return _str.decode("gbk").encode("utf-8")
 
 
+def put_file_contents(contents, filepath, mode=None, content_parser=None):
+        """ 将内容写入指定文件中 """
+        f = None
+        if mode is None:
+            f = open(filepath, "w")
+        elif mode == FILE_APPEND:
+            f = open(filepath, "a")
+        else:
+            raise Exception("MODE [{0}] Not Found.".format(mode))
+
+        try:
+            if f is None:
+                raise Exception("""
+                    Init File Handle Error. Please Check Mode Parameter.
+                """.strip())
+
+            for content in contents:
+                if content_parser is not None:
+                    content = content_parser(content)
+
+                f.write("{0}{1}".format(content, os.linesep))
+        except Exception as e:
+            raise e
+        finally:
+            f.close()
+
+        return True
+
+
 def format_voice_content(voice_content):
+    """ 格式化一个语音文件的语料 """
     format_result = []
     if len(voice_content) > 0:
         voice_content, temp = list(enumerate(voice_content)), []
@@ -56,8 +85,6 @@ def format_voice_content(voice_content):
         if len(temp) > 0:
             format_result.append("\t".join(temp))
 
-        print("\n".join(format_result))
-
     return format_result
 
 
@@ -66,9 +93,16 @@ def format_voice_content(voice_content):
 @click.option("--src", default=None, help="需要格式化的语料文件")
 @click.option("--dest", default=None, help="格式化后输出文件")
 def format(src, dest):
-    if not os.path.exists(src) and os.path.isfile(src):
+    if not os.path.exists(src) and not os.path.isfile(src):
         raise Exception(
-            "File Path: [{0}] is not Exists or is not File.".format(src))
+            """
+            Source File Path: [{0}] is not Exists or is not File.
+            """.format(src.strip()))
+
+    if dest is not None:
+        if os.path.exists(dest):
+            raise Exception(
+                "Dest File Path: [{0}] is Exists.".format(dest))
 
     with open(src, "r") as f:
         voice_contents = []
@@ -76,8 +110,13 @@ def format(src, dest):
             splited = line.strip().split(CONTENT_SEPARATOR)
             if len(splited) == 1 and splited[0].endswith(".wav"):
                 if len(voice_contents) != 0:
-                    format_voice_content(voice_contents)
+                    output = format_voice_content(voice_contents)
+                    str_output = "\n".join(output)
                     voice_contents = []
+                    if dest is None:
+                        click.echo(str_output)
+                    else:
+                        put_file_contents(output, dest, FILE_APPEND)
 
                 voice_contents.append(splited)
             else:
@@ -86,7 +125,12 @@ def format(src, dest):
                 voice_contents.append(splited)
 
         if len(voice_contents) != 0:
-            format_voice_content(voice_contents)
+            output = format_voice_content(voice_contents)
+            str_output = "\n".join(output)
+            if dest is None:
+                click.echo(str_output)
+            else:
+                put_file_contents(output, dest, FILE_APPEND)
 
 
 if __name__ == "__main__":
