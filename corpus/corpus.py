@@ -19,44 +19,48 @@ FILE_APPEND = "FILE_APPEND"
 @click.help_option("-h", "--help", help="使用说明")
 def cli():
     """
-    HBase 维护脚本
+    处理语料的脚本
 
-    获取帮助信息请执行 python hbase_maintenances.py --help
+    获取帮助信息请执行 python corpus.py --help
     """
     pass
 
 
+def charset_conver(_str, _from, _to):
+    return _str.decode(_from).encode(_to)
+
+
 def gbk_to_utf8(_str):
-    return _str.decode("gbk").encode("utf-8")
+    return charset_conver(_str, "gbk", "utf-8")
 
 
 def put_file_contents(contents, filepath, mode=None, content_parser=None):
-        """ 将内容写入指定文件中 """
-        f = None
-        if mode is None:
-            f = open(filepath, "w")
-        elif mode == FILE_APPEND:
-            f = open(filepath, "a")
-        else:
-            raise Exception("MODE [{0}] Not Found.".format(mode))
+    """ 将内容写入指定文件中 """
+    f = None
+    if mode is None:
+        f = open(filepath, "w")
+    elif mode == FILE_APPEND:
+        f = open(filepath, "a")
+    else:
+        raise Exception("MODE [{0}] Not Found.".format(mode))
 
-        try:
-            if f is None:
-                raise Exception("""
+    try:
+        if f is None:
+            raise Exception("""
                     Init File Handle Error. Please Check Mode Parameter.
                 """.strip())
 
-            for content in contents:
-                if content_parser is not None:
-                    content = content_parser(content)
+        for content in contents:
+            if content_parser is not None:
+                content = content_parser(content)
 
-                f.write("{0}{1}".format(content, os.linesep))
-        except Exception as e:
-            raise e
-        finally:
-            f.close()
+            f.write("{0}{1}".format(content, os.linesep))
+    except Exception as e:
+        raise e
+    finally:
+        f.close()
 
-        return True
+    return True
 
 
 def format_voice_content(voice_content):
@@ -92,12 +96,14 @@ def format_voice_content(voice_content):
 @click.help_option("-h", "--help", help="使用说明")
 @click.option("--src", default=None, help="需要格式化的语料文件")
 @click.option("--dest", default=None, help="格式化后输出文件")
-def format(src, dest):
+@click.option("--charset_from", default="gbk", help="文本字符集转码原始")
+@click.option("--charset_to", default="utf-8", help="文本字符集转码结果")
+def format(src, dest, charset_from, charset_to):
     if not os.path.exists(src) and not os.path.isfile(src):
         raise Exception(
             """
             Source File Path: [{0}] is not Exists or is not File.
-            """.format(src.strip()))
+            """.format(src).strip())
 
     if dest is not None:
         if os.path.exists(dest):
@@ -111,23 +117,25 @@ def format(src, dest):
             if len(splited) == 1 and splited[0].endswith(".wav"):
                 if len(voice_contents) != 0:
                     output = format_voice_content(voice_contents)
-                    str_output = "\n".join(output)
                     voice_contents = []
                     if dest is None:
+                        str_output = "\n".join(output)
                         click.echo(str_output)
                     else:
                         put_file_contents(output, dest, FILE_APPEND)
 
                 voice_contents.append(splited)
             else:
-                splited[2] = gbk_to_utf8(splited[2])
-                splited[3] = gbk_to_utf8(splited[3])
+                splited[2] = charset_conver(
+                    splited[2], charset_from, charset_to)
+                splited[3] = charset_conver(
+                    splited[3], charset_from, charset_to)
                 voice_contents.append(splited)
 
         if len(voice_contents) != 0:
             output = format_voice_content(voice_contents)
-            str_output = "\n".join(output)
             if dest is None:
+                str_output = "\n".join(output)
                 click.echo(str_output)
             else:
                 put_file_contents(output, dest, FILE_APPEND)
