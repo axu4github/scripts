@@ -63,6 +63,11 @@ def put_file_contents(contents, filepath, mode=None, content_parser=None):
     return True
 
 
+def filter_result(format_result):
+    _min, _max, line_number = 10, 100, len(format_result)
+    return line_number < _min or line_number > _max
+
+
 def format_voice_content(voice_content):
     """ 格式化一个语音文件的语料 """
     format_result = []
@@ -89,7 +94,7 @@ def format_voice_content(voice_content):
         if len(temp) > 0:
             format_result.append("\t".join(temp))
 
-    return format_result
+    return (format_result, filter_result(format_result))
 
 
 @cli.command(short_help="格式化语料")
@@ -116,13 +121,14 @@ def format(src, dest, charset_from, charset_to):
             splited = line.strip().split(CONTENT_SEPARATOR)
             if len(splited) == 1 and splited[0].endswith(".wav"):
                 if len(voice_contents) != 0:
-                    output = format_voice_content(voice_contents)
+                    output, is_filter = format_voice_content(voice_contents)
                     voice_contents = []
-                    if dest is None:
-                        str_output = "\n".join(output)
-                        click.echo(str_output)
-                    else:
-                        put_file_contents(output, dest, FILE_APPEND)
+                    if not is_filter:
+                        if dest is None:
+                            str_output = "\n".join(output)
+                            click.echo(str_output)
+                        else:
+                            put_file_contents(output, dest, FILE_APPEND)
 
                 voice_contents.append(splited)
             else:
@@ -133,12 +139,13 @@ def format(src, dest, charset_from, charset_to):
                 voice_contents.append(splited)
 
         if len(voice_contents) != 0:
-            output = format_voice_content(voice_contents)
-            if dest is None:
-                str_output = "\n".join(output)
-                click.echo(str_output)
-            else:
-                put_file_contents(output, dest, FILE_APPEND)
+            output, is_filter = format_voice_content(voice_contents)
+            if not is_filter:
+                if dest is None:
+                    str_output = "\n".join(output)
+                    click.echo(str_output)
+                else:
+                    put_file_contents(output, dest, FILE_APPEND)
 
 
 if __name__ == "__main__":
