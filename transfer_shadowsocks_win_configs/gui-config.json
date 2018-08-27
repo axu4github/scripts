@@ -1,0 +1,25 @@
+{
+    "configs": [
+        {
+            "server": "adfjslkdfjlka1l2k31l23.asd1231231",
+            "server_port": 123123124123123124124124,
+            "local_port": 123123124123123123123123,
+            "password": "12312431241230-123124810283",
+            "method": "dasdasfhsadyauios3n1l3nlk1",
+            "remarks": "\u9999\u6e2f1,"
+        },
+        {
+            "server": "adfjslkdfjlka1l2123124124123k31l23.asd1231231",
+            "server_port": 123123124123123124124124,
+            "local_port": 123123124123123123123123,
+            "password": "12312431241230-123124810283",
+            "method": "dasdasfhsadyauios3n1l3nlk1",
+            "remarks": "\u9999\u6e2f2,"
+        }
+    ],
+    "localPort": 123123124123123123123123,
+    "index": 0,
+    "global": false,
+    "enabled": true,
+    "isDefault": false
+}
