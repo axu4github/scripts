@@ -17,7 +17,7 @@ ply==3.11
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 Pygments==2.2.0
-requests==2.19.1
+requests==2.20.0
 scandir==1.7
 semver==2.8.0
 simplegeneric==0.8.1
